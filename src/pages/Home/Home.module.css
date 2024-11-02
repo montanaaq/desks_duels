@@ -1,0 +1,86 @@
+p, h1, h2, h3, a {
+    color: var(--color-text)
+}
+
+.home_wrapper {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    position: relative;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title {
+    font-size: 24px;
+    margin-top: 80px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+.timer {
+    width: 250px;
+    height: 250px;
+    font-size: 64px;
+    font-weight: bold;
+    color: var(--color-text);
+    background-color: transparent;
+    border: 10px solid var(--color-accent);
+    border-radius: 50%;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.25));
+    text-align: center;
+}
+.active {
+    color: var(--color-accent);
+}
+.gameStatus {
+    text-align: center;
+    margin-top: 10px;
+}
+.desks_container {
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+}
+.desks {
+    background-color: #EAEAEA;
+    width: 335px;
+    height: 350px;
+    border-radius: 20px;
+    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.25));
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 25px;
+}
+.desk {
+	min-width: 75px;
+	height: 30px;
+	background-color: #8e8e8e;
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+}
