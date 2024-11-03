@@ -12,7 +12,7 @@
 	justify-content: start;
 	align-items: center;
 	flex-direction: column;
-	width: 300px;
+	width: 330px;
 	height: 422px;
 	background-color: var(--color-accent-light);
 	border: none;
@@ -46,8 +46,8 @@
 	margin-top: 30px;
 }
 .checkbox_container p {
-    font-size: 9px;
-    margin-bottom: 3px;
+    font-size: 10px;
+    margin-bottom: 2px;
 }
 
 .button {
@@ -93,7 +93,7 @@
 	appearance: none;
 	-webkit-appearance: none;
 	-moz-appearance: none;
-	height: 16px;
+	height: 18px;
 	outline: none;
 	display: inline-block;
 	vertical-align: top;
@@ -138,7 +138,7 @@
 	box-shadow: 0 0 0 var(--focus);
 }
 .checkbox_wrapper_13 input[type='checkbox']:not(.switch) {
-	width: 16px;
+	width: 18px;
 }
 .checkbox_wrapper_13 input[type='checkbox']:not(.switch):after {
 	opacity: var(--o, 0);

@@ -12,17 +12,11 @@ const App: FC = () => {
 
 	const { tg } = useTelegram();
 
-	// Debugging output to check if `tg.initDataUnsafe` has the expected user data
-	// useEffect(() => {
-	// 	alert( 'tg nick: ' + tg.initDataUnsafe?.user?.username);
-	// 	alert('tg id: ' + tg.initDataUnsafe?.user?.id);
-	// }, [tg]);
-
 	const getUserByTelegramId = async (telegramId: number) => {
 		try {
 			const userData = await findUserById(telegramId);
-			console.log('Fetched user data:', userData); // Check the structure of userData
-			return userData.user || null; // Access `user` field if available
+			console.log('Fetched user data:', userData); 
+			return userData.user || null; 
 		} catch (error) {
 			console.error('Error getting user by Telegram ID:', error);
 			return null;
@@ -32,6 +26,7 @@ const App: FC = () => {
 	useEffect(() => {
 		const checkUser = async () => {
 			const telegramId = tg.initDataUnsafe?.user?.id;
+			// const telegramId = 123412343;
 			if (!telegramId) {
 				console.error('Telegram ID is undefined');
 				setLoading(false);

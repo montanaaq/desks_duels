@@ -1,6 +1,7 @@
 // pages/Rules/Rules.tsx
 import { FC, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Toaster, toast } from 'sonner'
 import DesignCircles from '../../components/DesignCircles/DesignCircles'
 import Footer from '../../components/Footer'
 import Logo from '../../components/Logo'
@@ -18,16 +19,26 @@ const Rules: FC = () => {
 	}
 
 	const handleNextClick = () => {
-		const telegramId = tg.initDataUnsafe?.user.id
+		const telegramId = tg.initDataUnsafe?.user.id;
+		// const telegramId = 123412343
 		if (isChecked) {
 			handleAcceptRules(telegramId, navigate)
+			toast.promise(handleAcceptRules(telegramId, navigate), {
+				loading: 'Loading...',
+			success: 'Успешно',
+				error: 'Ошибка! Попробуйте позже.',
+			  });
 			navigate('/')
-			window.location.reload()
+			// ждать 0.5 секунды перед перезагрузкой страницы для корректной response
+			setTimeout(() => {
+				window.location.reload()
+			}, 1500)
 		}
 	}
 
 	return (
 		<DesignCircles>
+			<Toaster position='top-center' expand={true} richColors closeButton={false}/>
 			<div className={styles.rules_wrapper}>
 				<Logo
 					style={{ marginTop: '10px', width: '135px', height: '90px' }}

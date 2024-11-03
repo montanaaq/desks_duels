@@ -27,7 +27,7 @@ export const getUsers = async () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ telegramId:telegramId.toString() }),
+        body: JSON.stringify({ telegramId: telegramId.toString() }),
       });
   
       if (!response.ok) {

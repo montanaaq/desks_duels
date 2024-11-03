@@ -1,13 +1,13 @@
 // services/userService.ts
 import { url } from "./userService";
-export const handleAcceptRules = async (telegramId: string, navigate: (path: string) => void) => {
+export const handleAcceptRules = async (telegramId: number, navigate: (path: string) => void) => {
   try {
     const response = await fetch(`${url}/auth/accept-rules`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ telegramId }),
+      body: JSON.stringify({ telegramId: telegramId.toString() }),
     });
 
     if (!response.ok) {

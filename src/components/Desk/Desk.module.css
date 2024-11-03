@@ -1,51 +1,27 @@
-.desk {
-	min-width: 75px;
-	height: 30px;
-	background-color: #8e8e8e;
-	border-radius: 6px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 10px;
-}
-
 .desk_circle {
-	width: 24px;
-	height: 24px;
+	width: 23px;
+	height: 23px;
 	border-radius: 50%;
 }
 
 .free {
 	background-color: var(--color-success);
+    box-shadow: 0 0 10px var(--color-success);   
 }
 
 .dueled {
 	background-color: #ffd700;
+    box-shadow: 0 0 10px #ffd700;
 }
 
 .occupied {
 	background-color: var(--color-error);
+    box-shadow: 0 0 10px var(--color-error);   
 }
 
-
-/* iPhone 5/SE */
-@media only screen and (min-width: 320px) and (max-width: 568px) {
-    .desk {
-        min-width: 60px;
-        height: 25px;
-    }
-    .desk_circle {
-        width: 20px;
-        height: 20px;
-    }
-}
 
 /* iPhone 6/7/8 */
 @media only screen and (min-width: 375px) and (max-width: 667px) {
-    .desk {
-        min-width: 65px;
-        height: 28px;
-    }
     .desk_circle {
         width: 22px;
         height: 22px;
@@ -54,48 +30,39 @@
 
 /* iPhone 6/7/8 Plus */
 @media only screen and (min-width: 414px) and (max-width: 736px) {
-    .desk {
-        min-width: 70px;
-        height: 30px;
-    }
     .desk_circle {
-        width: 23px;
-        height: 23px;
+        width: 22px;
+        height: 22px;
     }
 }
 
 /* iPhone X/XS/XR */
 @media only screen and (min-width: 375px) and (max-width: 812px) {
-    .desk {
-        min-width: 72px;
-        height: 32px;
-    }
     .desk_circle {
-        width: 23px;
-        height: 23px;
+        width: 22px;
+        height: 22px;
     }
 }
 
 /* Samsung Galaxy S8/S9/S10 */
 @media only screen and (min-width: 360px) and (max-width: 740px) {
-    .desk {
-        min-width: 68px;
-        height: 29px;
-    }
     .desk_circle {
-        width: 23px;
-        height: 23px;
+        width: 18px;
+        height: 18px;
     }
+}
+/* iPhone 12 Pro */
+@media only screen and (min-width: 380px) and (max-width: 850px) {
+	.desk_circle {
+		width: 20px;
+        height: 20px;
+	}
 }
 
 /* Google Pixel 2/3/4 */
 @media only screen and (min-width: 411px) and (max-width: 731px) {
-    .desk {
-        min-width: 70px;
-        height: 30px;
-    }
     .desk_circle {
-        width: 23px;
-        height: 23px;
+        width: 20px;
+        height: 20px;
     }
 }
