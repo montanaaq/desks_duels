@@ -1,4 +1,5 @@
 export const url = "https://desks-duels-backend.onrender.com"
+// export const url = 'http://localhost:3000'
 
 export const getUsers = async () => {
     try {

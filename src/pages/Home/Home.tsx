@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from 'react'
+import { io } from 'socket.io-client'
 import { Toaster, toast } from 'sonner'
 import DesignCircles from '../../components/DesignCircles/DesignCircles'
 import Footer from '../../components/Footer'
@@ -6,11 +7,13 @@ import Logo from '../../components/Logo'
 import Modal from '../../components/Modal/Modal'
 import useSchoolTimer from '../../hooks/useSchoolTimer'
 import { getDesks, takeSeat } from '../../services/seatService'
-import { findOccupiedByUser } from '../../services/userService'
+import { findOccupiedByUser, url } from '../../services/userService'
 import { SeatType } from '../../types/seat.types'
 import { userType } from '../../types/user.types'
 import DeskContainer from './DeskContainer/DeskContainer'
 import styles from './Home.module.css'
+
+const socket = io(url)
 
 interface HomeProps {
 	user: userType
@@ -23,13 +26,40 @@ const Home: FC<HomeProps> = ({ user }) => {
 	const [occupiedByUser, setOccupiedByUser] = useState<userType | null>(null)
 
 	useEffect(() => {
-		const fetchDesks = async () => {
+		const fetchInitialDesks = async () => {
 			const data = await getDesks()
 			setDesks(data)
 		}
-		fetchDesks()
+		fetchInitialDesks()
+
+		socket.on('seatUpdated', (updatedSeat: SeatType) => {
+			setDesks((prevDesks) =>
+				prevDesks.map((seat) =>
+					seat.id === updatedSeat.id ? updatedSeat : seat
+				)
+			)
+		})
+
+		// Поддержание стабильного соединения
+		const pingInterval = setInterval(() => socket.emit('ping'), 5000)
+		socket.on('pong', () => console.log('Received pong from server'))
+
+		// Логирование подключения и отключения
+		socket.on('connect', () => console.log('Connected to server:', socket.id))
+		socket.on('disconnect', () =>
+			console.log('Disconnected from server:', socket.id)
+		)
+
+		return () => {
+			clearInterval(pingInterval)
+			socket.off('seatUpdated')
+			socket.off('pong')
+			socket.off('connect')
+			socket.off('disconnect')
+		}
 	}, [])
 
+	// Проверяем, занят ли стол пользователем и обновляем occupant
 	useEffect(() => {
 		const fetchOccupiedByUser = async () => {
 			if (selectedSeat && selectedSeat.occupiedBy) {
@@ -50,19 +80,28 @@ const Home: FC<HomeProps> = ({ user }) => {
 		setSelectedSeat(null)
 	}
 
-	const handleOccupySeat = () => {
+	const handleOccupySeat = async () => {
 		if (selectedSeat) {
-			toast.promise(takeSeat(user.telegramId as string, selectedSeat.id), {
-				loading: 'Loading...',
-				success: 'Успешно',
-				error: 'Ошибка! Попробуйте позже.',
-			})
-			setSelectedSeat(null)
-			setTimeout(() => {
-				window.location.reload()
-			}, 1500)
+			try {
+				const updatedSeat = toast.promise(
+					takeSeat(user.telegramId as string, selectedSeat.id),
+					{
+						loading: 'Loading...',
+						success: 'Успешно занято!',
+						error: 'Ошибка! Попробуйте позже.',
+					}
+				)
+				socket.emit('seatOccupied', updatedSeat)
+				setSelectedSeat(null)
+				setTimeout(() => {
+					window.location.reload()
+				}, 1500)
+			} catch (error) {
+				console.error('Error occupying seat:', error)
+			}
 		}
 	}
+
 	const handleChallengeToDuel = () => {
 		if (selectedSeat && selectedSeat.occupiedBy) {
 			console.log(
@@ -144,9 +183,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 						<p className={styles.occupied_info}>
 							Занято:{' '}
 							{selectedSeat.occupiedBy
-								? occupiedByUser?.name !== undefined
-									? `Пользователь ${occupiedByUser?.name}`
-									: 'Loading...'
+								? occupiedByUser?.name ?? 'Loading...'
 								: 'Нет'}
 						</p>
 						{!selectedSeat.dueled &&

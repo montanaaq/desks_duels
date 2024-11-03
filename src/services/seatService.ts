@@ -14,23 +14,25 @@ export const getDesks = async (): Promise<SeatType[]> => {
     }
   };
   
-export const takeSeat = async (telegramId: string, seatId: number) => {
+  export const takeSeat = async (telegramId: string, seatId: number): Promise<SeatType> => {
     try {
       const response = await fetch(`${url}/seats/${seatId}/take`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ telegramId: telegramId}),
+        body: JSON.stringify({ telegramId }),
       });
   
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
   
-      return response.json();
+      // Возвращаем обновлённые данные о месте
+      return await response.json();
     } catch (error) {
       console.error('Error taking seat:', error);
       throw error;
     }
   };
+  
