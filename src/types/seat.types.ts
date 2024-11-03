@@ -1,4 +1,4 @@
-export interface DeskType {
+export interface SeatType {
     id: number;
     rowNumber: number;
     deskNumber: number;

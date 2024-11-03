@@ -56,39 +56,32 @@ a {
 	text-align: center;
 	margin-top: 10px;
 }
-.desks_container {
-	width: 100%;
-	height: fit-content;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin-top: 20px;
-	margin-bottom: 10px;
-}
-.desks {
-	background-color: #eaeaea;
-	width: 335px;
-	height: 350px;
-	border-radius: 20px;
+.modal_button {
+	position: absolute;
+	width: 200px;
+	height: 40px;
+	border-radius: 5px;
+	border: none;
+	font-size: 18px;
+	font-weight: 600;
+	background-color: var(--color-accent);
 	filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.25));
-	padding: 20px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-	flex-wrap: wrap;
-	gap: 20px;
-	margin-bottom: 40px;
+	margin-left: 200px;
+	transition: 0.2s ease-in-out;
+	bottom: 10px;
+	right: 10px;
 }
-.desk {
-	min-width: 75px;
-	height: 30px;
-	background-color: #8e8e8e;
-	border-radius: 6px;
+
+.status_info {
 	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 10px;
+	gap: 5px;
+	font-weight: 600;
+	font-size: 18px;
+    margin-bottom: 5px;
+}
+.occupied_info {
+	font-weight: 600;
+	font-size: 18px;
 }
 
 @media only screen and (max-width: 380px) and (max-width: 568px) {
@@ -103,66 +96,9 @@ a {
 	.subtitle {
 		font-size: 16px;
 	}
-	.desks {
-		width: 300px;
-		height: 280px;
-		gap: 10px;
-		margin-bottom: 10px;
-	}
-	.desk {
-		min-width: 55px;
-		height: 25px;
-		gap: 8px;
-	}
 	.timer {
 		font-size: 48px;
 		width: 180px;
 		height: 180px;
-	}
-}
-
-/* iPhone 6/7/8 */
-@media only screen and (min-width: 375px) and (max-width: 667px) {
-	.desk {
-		min-width: 65px;
-		height: 28px;
-	}
-}
-
-/* iPhone 6/7/8 Plus */
-@media only screen and (min-width: 414px) and (max-width: 736px) {
-	.desk {
-		min-width: 70px;
-		height: 30px;
-	}
-}
-
-/* iPhone X/XS/XR */
-@media only screen and (min-width: 375px) and (max-width: 812px) {
-	.desk {
-		min-width: 72px;
-		height: 32px;
-	}
-}
-
-/* Samsung Galaxy S8/S9/S10 */
-@media only screen and (min-width: 360px) and (max-width: 740px) {
-	.desk {
-		min-width: 70px;
-		height: 30px;
-	}
-}
-/* iPhone 12 Pro */
-@media only screen and (min-width: 380px) and (max-width: 850px) {
-	.desk {
-		min-width: 70px;
-		height: 34px;
-	}
-}
-/* Google Pixel 2/3/4 */
-@media only screen and (min-width: 411px) and (max-width: 731px) {
-	.desk {
-		min-width: 72px;
-		height: 32px;
 	}
 }

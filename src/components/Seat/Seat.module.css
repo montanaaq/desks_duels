@@ -19,6 +19,10 @@
     box-shadow: 0 0 10px var(--color-error);   
 }
 
+.active {
+    background-color: var(--color-accent);
+    box-shadow: 0 0 10px var(--color-accent);
+}
 
 /* iPhone 6/7/8 */
 @media only screen and (min-width: 375px) and (max-width: 667px) {

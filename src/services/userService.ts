@@ -39,3 +39,24 @@ export const getUsers = async () => {
       throw error;
     }
   };
+  export const findOccupiedByUser = async (occupiedById: number) => {
+    try {
+      const response = await fetch(`${url}/users/get-occupiedBy-user`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ occupiedById: occupiedById.toString() }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      return data.user;
+    } catch (error) {
+      console.error('Error finding occupiedBy user:', error);
+      throw error;
+    }
+  };

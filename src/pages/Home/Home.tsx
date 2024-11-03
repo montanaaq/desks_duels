@@ -1,14 +1,15 @@
-// src/pages/Home/Home.tsx
-
 import { FC, useEffect, useState } from 'react'
+import { Toaster, toast } from 'sonner'
 import DesignCircles from '../../components/DesignCircles/DesignCircles'
-import Desk from '../../components/Desk/Desk'
 import Footer from '../../components/Footer'
 import Logo from '../../components/Logo'
+import Modal from '../../components/Modal/Modal'
 import useSchoolTimer from '../../hooks/useSchoolTimer'
-import { getDesks } from '../../services/seatService'
-import { DeskType } from '../../types/seat.types'
+import { getDesks, takeSeat } from '../../services/seatService'
+import { findOccupiedByUser } from '../../services/userService'
+import { SeatType } from '../../types/seat.types'
 import { userType } from '../../types/user.types'
+import DeskContainer from './DeskContainer/DeskContainer'
 import styles from './Home.module.css'
 
 interface HomeProps {
@@ -17,7 +18,10 @@ interface HomeProps {
 
 const Home: FC<HomeProps> = ({ user }) => {
 	const { minutes, seconds, isGameActive } = useSchoolTimer()
-	const [desks, setDesks] = useState<DeskType[]>([])
+	const [desks, setDesks] = useState<SeatType[]>([])
+	const [selectedSeat, setSelectedSeat] = useState<SeatType | null>(null)
+	const [occupiedByUser, setOccupiedByUser] = useState<userType | null>(null)
+
 	useEffect(() => {
 		const fetchDesks = async () => {
 			const data = await getDesks()
@@ -26,8 +30,55 @@ const Home: FC<HomeProps> = ({ user }) => {
 		fetchDesks()
 	}, [])
 
+	useEffect(() => {
+		const fetchOccupiedByUser = async () => {
+			if (selectedSeat && selectedSeat.occupiedBy) {
+				const occupiedByUser = await findOccupiedByUser(selectedSeat.occupiedBy)
+				setOccupiedByUser(occupiedByUser)
+			} else {
+				setOccupiedByUser(null)
+			}
+		}
+		fetchOccupiedByUser()
+	}, [selectedSeat])
+
+	const handleSelectSeat = (seat: SeatType) => {
+		setSelectedSeat(seat)
+	}
+
+	const handleCloseModal = () => {
+		setSelectedSeat(null)
+	}
+
+	const handleOccupySeat = () => {
+		if (selectedSeat) {
+			toast.promise(takeSeat(user.telegramId as string, selectedSeat.id), {
+				loading: 'Loading...',
+				success: 'Успешно',
+				error: 'Ошибка! Попробуйте позже.',
+			})
+			setSelectedSeat(null)
+			setTimeout(() => {
+				window.location.reload()
+			}, 1500)
+		}
+	}
+	const handleChallengeToDuel = () => {
+		if (selectedSeat && selectedSeat.occupiedBy) {
+			console.log(
+				`Challenging ${selectedSeat.occupiedBy} to a duel on seat ${selectedSeat.id}`
+			)
+		}
+	}
+
 	return (
 		<DesignCircles>
+			<Toaster
+				position='bottom-center'
+				expand={true}
+				richColors
+				closeButton={false}
+			/>
 			<div className={styles.home_wrapper}>
 				<Logo
 					style={{
@@ -62,26 +113,61 @@ const Home: FC<HomeProps> = ({ user }) => {
 						</p>
 					)}
 				</div>
-				<div className={styles.desks_container}>
-					<div className={styles.desks}>
-						{desks.length > 0 ? (
-							[...Array(18)].map((_, deskIndex) => (
-								<div className={styles.desk}>
-									{[...Array(2)].map((_, varIndex) => (
-										<Desk
-											key={desks[deskIndex * 2 + varIndex].id}
-											desk={desks[deskIndex * 2 + varIndex]}
-										/>
-									))}
-								</div>
-							))
-						) : (
-							<p>Loading...</p>
-						)}
-					</div>
-				</div>
+				<DeskContainer
+					desks={desks}
+					onSelect={handleSelectSeat}
+					isModalOpen={!!selectedSeat}
+				/>
 				<Footer />
 			</div>
+
+			<Modal isOpen={!!selectedSeat} onClose={handleCloseModal}>
+				{selectedSeat && (
+					<div>
+						<h2>Место {selectedSeat.rowNumber} ряда</h2>
+						<h2>Парта: {selectedSeat.deskNumber}</h2>
+						<h2 style={{ marginBottom: '10px' }}>
+							Вариант: № {selectedSeat.variant}
+						</h2>
+						<div className={styles.status_info}>
+							<p>Статус:</p>
+							<p
+								style={
+									selectedSeat.dueled
+										? { color: 'var(--color-error)' }
+										: { color: 'var(--color-success)' }
+								}
+							>
+								{selectedSeat.dueled ? 'Дуэль завершена' : 'Доступно для дуэли'}
+							</p>
+						</div>
+						<p className={styles.occupied_info}>
+							Занято:{' '}
+							{selectedSeat.occupiedBy
+								? occupiedByUser?.name !== undefined
+									? `Пользователь ${occupiedByUser?.name}`
+									: 'Loading...'
+								: 'Нет'}
+						</p>
+						{!selectedSeat.dueled &&
+							(selectedSeat.occupiedBy ? (
+								<button
+									className={styles.modal_button}
+									onClick={handleChallengeToDuel}
+								>
+									Предложить дуэль
+								</button>
+							) : (
+								<button
+									className={styles.modal_button}
+									onClick={handleOccupySeat}
+								>
+									Занять место
+								</button>
+							))}
+					</div>
+				)}
+			</Modal>
 		</DesignCircles>
 	)
 }

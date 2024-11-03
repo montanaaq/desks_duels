@@ -19,15 +19,15 @@ const Rules: FC = () => {
 	}
 
 	const handleNextClick = () => {
-		const telegramId = tg.initDataUnsafe?.user.id;
-		// const telegramId = 123412343
+		// const telegramId = tg.initDataUnsafe?.user.id;
+		const telegramId = 12341234
 		if (isChecked) {
 			handleAcceptRules(telegramId, navigate)
 			toast.promise(handleAcceptRules(telegramId, navigate), {
 				loading: 'Loading...',
-			success: 'Успешно',
+				success: 'Успешно',
 				error: 'Ошибка! Попробуйте позже.',
-			  });
+			})
 			navigate('/')
 			// ждать 0.5 секунды перед перезагрузкой страницы для корректной response
 			setTimeout(() => {
@@ -38,7 +38,12 @@ const Rules: FC = () => {
 
 	return (
 		<DesignCircles>
-			<Toaster position='top-center' expand={true} richColors closeButton={false}/>
+			<Toaster
+				position='bottom-center'
+				expand={true}
+				richColors
+				closeButton={false}
+			/>
 			<div className={styles.rules_wrapper}>
 				<Logo
 					style={{ marginTop: '10px', width: '135px', height: '90px' }}

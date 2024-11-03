@@ -1,7 +1,7 @@
-import { DeskType } from "../types/seat.types";
+import { SeatType } from "../types/seat.types";
 import { url } from "./userService";
 
-export const getDesks = async (): Promise<DeskType[]> => {
+export const getDesks = async (): Promise<SeatType[]> => {
     try {
       const response = await fetch(`${url}/seats`);
       if (!response.ok) {
@@ -14,3 +14,23 @@ export const getDesks = async (): Promise<DeskType[]> => {
     }
   };
   
+export const takeSeat = async (telegramId: string, seatId: number) => {
+    try {
+      const response = await fetch(`${url}/seats/${seatId}/take`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ telegramId: telegramId}),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      return response.json();
+    } catch (error) {
+      console.error('Error taking seat:', error);
+      throw error;
+    }
+  };
