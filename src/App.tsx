@@ -39,7 +39,6 @@ const App: FC = () => {
 			}
 
 			const user = await getUserByTelegramId(telegramId);
-			alert(user)
 			if (user) {
 				setUser(user);
 			}
@@ -49,7 +48,6 @@ const App: FC = () => {
 	}, [tg]);
 
 	if (loading) return <div>Loading...</div>;
-
 	return user && user.rules_seen ? <Home user={user} /> : <Rules />;
 };
 
