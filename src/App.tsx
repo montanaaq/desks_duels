@@ -25,8 +25,8 @@ const App: FC = () => {
 
 	useEffect(() => {
 		const checkUser = async () => {
-		// const telegramId = tg.initDataUnsafe?.user?.id;
-		const telegramId = 12341234
+		const telegramId = tg.initDataUnsafe?.user?.id;
+		// const telegramId = 12341234
 			if (!telegramId) {
 				console.error('Telegram ID is undefined')
 				setLoading(false)
