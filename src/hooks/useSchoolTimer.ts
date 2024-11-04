@@ -51,12 +51,10 @@ const useSchoolTimer = (): TimerState => {
 
       setIsGameActive(isBreak);
 
-      if (!isBreak) {
-        const mins = Math.floor((timeLeft / 1000 / 60) % 60);
-        const secs = Math.floor((timeLeft / 1000) % 60);
-        setMinutes(String(mins).padStart(2, '0'));
-        setSeconds(String(secs).padStart(2, '0'));
-      }
+      const mins = Math.floor((timeLeft / 1000 / 60) % 60);
+      const secs = Math.floor((timeLeft / 1000) % 60);
+      setMinutes(String(mins).padStart(2, '0'));
+      setSeconds(String(secs).padStart(2, '0'));
     };
 
     updateTimer();
