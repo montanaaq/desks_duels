@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
 html,
 body,
@@ -34,26 +34,25 @@ body label {
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
 
-  --color-accent: #1E90FF;
-  --color-accent-light: #8EC7FF;
-  --color-background: #FFFFFF;
+  --color-accent: #1e90ff;
+  --color-accent-light: #8ec7ff;
+  --color-background: #ffffff;
   --color-text: #333333;
-  --color-success: #32CD32; 
-  --color-error: #FF5656;
+  --color-success: #32cd32;
+  --color-error: #ff5656;
   --color-disabled: #707070;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 body {
@@ -62,3 +61,17 @@ body {
   background-color: var(--color-background);
 }
 
+.App_if_user_not_found {
+  width: 100%;
+  min-height: calc(100vh - 57px);
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  padding: 20px;
+}
+.App_if_user_not_found p {
+  font-size: larger;
+  margin-top: 100px;
+  text-align: center;
+}

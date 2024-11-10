@@ -1,0 +1,88 @@
+/* Общие стили */
+p,
+h1,
+h2 {
+  color: var(--color-text);
+}
+
+.coinFlip_wrapper {
+  min-height: calc(100vh - 57px);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.coinFlip_container {
+  width: 100%;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  flex-direction: column;
+  border: none;
+  border-radius: 10px;
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.25));
+  color: var(--color-text);
+  gap: 10px;
+  animation: fadeInScale 0.7s ease-in-out;
+  margin-top: 50px;
+}
+
+.coinFlip_container p {
+  font-size: 32px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.coin {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 28px;
+  font-weight: 600;
+  transition: transform 0.6s ease;
+  background: radial-gradient(circle, #ffd700 0%, #ffc700 40%, #ff9900 100%);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.flipping {
+  animation: flip 1s infinite;
+}
+
+@keyframes flip {
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(180deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+/* Адаптация под мобильные устройства */
+@media (max-width: 600px) {
+  .coinFlip_container p {
+    font-size: 24px; /* Уменьшаем размер текста */
+    margin-bottom: 15px;
+  }
+
+  .coin {
+    width: 150px; /* Уменьшаем размер монеты */
+    height: 150px;
+    font-size: 22px;
+  }
+
+  .coinFlip_container {
+    gap: 8px;
+    padding: 10px;
+  }
+}

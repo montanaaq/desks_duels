@@ -1,8 +1,9 @@
 export type userType = {
-    id: Number,
-    name: String,
-    username: String,
-    telegramId: String,
-    rules_seen: Boolean,
-    currentSeat: Number
+    id: number,
+    name: string,
+    username: string,
+    telegramId: string,
+    rules_seen: boolean,
+    currentSeat: number
+    dueling: boolean
 }
