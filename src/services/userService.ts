@@ -1,7 +1,7 @@
 // services/userService.ts
 
-// export const url = 'http://localhost:3000'; // Убедитесь, что URL правильный
-export const url = 'https://desks-duels-backend.onrender.com';
+export const url = 'http://localhost:3000'; // Убедитесь, что URL правильный
+// export const url = 'https://desks-duels-backend.onrender.com';
 
 export const getUsers = async () => {
     try {
@@ -92,3 +92,4 @@ export const setDuelingFlag = async (telegramId: string, dueling: boolean) => {
         throw new Error(error.message || 'Unknown error');
     }
 };
+ 

@@ -13,8 +13,8 @@ interface SeatProps {
 }
 
 const Seat: FC<SeatProps> = ({seat, isSelected, onSelect, isModalOpen}) => {
-	const {isGameActive} = useSchoolTimer();
-	// const isGameActive = true
+	// const {isGameActive} = useSchoolTimer();
+	const isGameActive = true
 
 	let circleClass;
 	if (seat.dueled && seat.occupiedBy) {

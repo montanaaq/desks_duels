@@ -13,7 +13,8 @@ const App: FC = () => {
   const [loading, setLoading] = useState(true);
   // const [telegramId, setTelegramId] = useState<number>(); // Initial sample Telegram ID
   const { tg } = useTelegram();
-  const telegramId = tg.initDataUnsafe?.user.id;
+  // const telegramId = tg.initDataUnsafe?.user.id;
+  const telegramId = 1
 
 
   const getUserByTelegramId = async (telegramId: number) => {

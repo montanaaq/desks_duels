@@ -1,11 +1,10 @@
-// pages/Home/Home.tsx
+// src/components/Home/Home.tsx
 
 import { FC, useEffect, useRef, useState } from "react";
 import { toast, Toaster } from "sonner";
 import DesignCircles from "../../components/DesignCircles/DesignCircles";
 import Footer from "../../components/Footer";
 import Logo from "../../components/Logo";
-import Modal from "../../components/Modal/Modal";
 import useSchoolTimer from "../../hooks/useSchoolTimer";
 import { requestDuel, sendAcceptDuel } from "../../services/duelService";
 import { getDesks, getSeatById, takeSeat } from "../../services/seatService";
@@ -14,7 +13,10 @@ import { findUserById } from "../../services/userService";
 import { SeatType } from "../../types/seat.types";
 import { userType } from "../../types/user.types";
 import DeskContainer from "./DeskContainer/DeskContainer";
+import DuelRequestPopup from "./DuelRequestPopup/DuelRequestPopup";
 import styles from "./Home.module.css";
+import SeatModal from "./SeatModal/SeatModal";
+import Timer from "./Timer/Timer";
 
 interface HomeProps {
   user: userType;
@@ -36,7 +38,7 @@ const Home: FC<HomeProps> = ({ user }) => {
   const [occupiedByUser, setOccupiedByUser] = useState<userType | null>(null);
   const [duelRequest, setDuelRequest] = useState<DuelRequest | null>(null);
   const duelRequestRef = useRef<DuelRequest | null>(null);
-  console.log(duelRequest)
+
   useEffect(() => {
     const fetchInitialDesks = async () => {
       try {
@@ -58,7 +60,7 @@ const Home: FC<HomeProps> = ({ user }) => {
     );
 
     return () => cleanupSocket(); // Clean up socket on component unmount
-  }, []);
+  }, [user.telegramId]);
 
   const handleChallengeToDuel = async () => {
     if (selectedSeat && selectedSeat.occupiedBy) {
@@ -127,52 +129,6 @@ const Home: FC<HomeProps> = ({ user }) => {
   const showDuelRequestPopup = (request: DuelRequest) => {
     duelRequestRef.current = request;
     setDuelRequest(request);
-
-    let remainingTime = 60;
-    const intervalId = setInterval(() => {
-      remainingTime -= 1;
-      if (remainingTime <= 0) {
-        clearInterval(intervalId);
-      }
-    }, 1000);
-
-    // Show popup only to the challenged user
-    if (user.telegramId === request.challengedId) {
-      toast.custom(
-        (t: any) => (
-          <div className={styles.duel_request_pop_up}>
-            <p>Пользователь {request.challengerName} вызвал вас на дуэль!</p>
-            <p>Оставшееся время: {remainingTime} секунд</p>
-            <div>
-              <button
-                onClick={() => {
-                  handleDeclineDuel(request, false, remainingTime);
-                  toast.dismiss(t.id);
-                }}
-              >
-                Отказаться
-              </button>
-              <button
-                onClick={() => {
-                  acceptDuel(request);
-                  toast.dismiss(t.id);
-                }}
-              >
-                Принять
-              </button>
-            </div>
-          </div>
-        ),
-        { duration: 60000, id: request.duelId }
-      );
-    }
-
-    setTimeout(() => {
-      if (duelRequestRef.current === request) {
-        handleDeclineDuel(request, true, 0);
-      }
-      clearInterval(intervalId);
-    }, 60000);
   };
 
   const acceptDuel = async (request: DuelRequest) => {
@@ -198,11 +154,11 @@ const Home: FC<HomeProps> = ({ user }) => {
     initialTime = 60
   ) => {
     if (isTimeout) {
-      toast.info(`Время истекло. ${request.challengerName} занимает место.`);
+      toast.info("Время истекло. ${request.challengerName} занимает место.");
     } else {
       let remainingTime = initialTime;
       let toastId = toast(
-        `Вы автоматически проиграете в дуэли, при отказе. Оставшееся время: ${remainingTime} секунд`,
+        "Вы автоматически проиграете в дуэли, при отказе. Оставшееся время: ${remainingTime} секунд",
         {
           action: {
             label: "Принять",
@@ -216,7 +172,7 @@ const Home: FC<HomeProps> = ({ user }) => {
         if (remainingTime > 0) {
           toast.dismiss(toastId);
           toastId = toast(
-            `Вы автоматически проиграете в дуэли, при отказе. Оставшееся время: ${remainingTime} секунд`,
+            "Вы автоматически проиграете в дуэли, при отказе. Оставшееся время: ${remainingTime} секунд",
             {
               action: {
                 label: "Принять",
@@ -238,7 +194,7 @@ const Home: FC<HomeProps> = ({ user }) => {
     setSelectedSeat(seat);
     if (seat.occupiedBy) {
       try {
-        const occupant = await findUserById(seat.occupiedBy);
+        const occupant = await findUserById(Number(seat.occupiedBy));
         setOccupiedByUser(occupant.user);
       } catch (error) {
         console.error("Error fetching user:", error);
@@ -301,11 +257,11 @@ const Home: FC<HomeProps> = ({ user }) => {
             Привет, <b>{user.name}</b>!
           </p>
           <p className={styles.subtitle}>До начала</p>
-          <div
-            className={`${styles.timer} ${isGameActive ? styles.active : ""}`}
-          >
-            {minutes}:{seconds}
-          </div>
+          <Timer
+            minutes={Number(minutes)}
+            seconds={Number(seconds)}
+            isActive={isGameActive}
+          />
           {isGameActive && (
             <p className={styles.gameStatus}>
               Игра активна!
@@ -322,51 +278,23 @@ const Home: FC<HomeProps> = ({ user }) => {
         <Footer />
       </div>
 
-      <Modal isOpen={!!selectedSeat} onClose={handleCloseModal}>
-        {selectedSeat && (
-          <div>
-            <h2>Место {selectedSeat.rowNumber} ряда</h2>
-            <h2>Парта: {selectedSeat.deskNumber}</h2>
-            <h2 style={{ marginBottom: "10px" }}>
-              Вариант: № {selectedSeat.variant}
-            </h2>
-            <div className={styles.status_info}>
-              <p>Статус:</p>
-              <p
-                style={
-                  selectedSeat.dueled
-                    ? { color: "var(--color-error)" }
-                    : { color: "var(--color-success)" }
-                }
-              >
-                {selectedSeat.dueled ? "Дуэль завершена" : "Доступно для дуэли"}
-              </p>
-            </div>
-            <p className={styles.occupied_info}>
-              Занято:{" "}
-              {selectedSeat.occupiedBy
-                ? occupiedByUser?.name ?? "Loading..."
-                : "Нет"}
-            </p>
-            {!selectedSeat.dueled &&
-              (selectedSeat.occupiedBy ? (
-                <button
-                  className={styles.modal_button}
-                  onClick={handleChallengeToDuel}
-                >
-                  Предложить дуэль
-                </button>
-              ) : (
-                <button
-                  className={styles.modal_button}
-                  onClick={handleOccupySeat}
-                >
-                  Занять место
-                </button>
-              ))}
-          </div>
-        )}
-      </Modal>
+      <SeatModal
+        isOpen={!!selectedSeat}
+        onClose={handleCloseModal}
+        seat={selectedSeat}
+        occupiedByUser={occupiedByUser}
+        user={user}
+        onChallenge={handleChallengeToDuel}
+        onOccupy={handleOccupySeat}
+      />
+
+      {duelRequest && (
+        <DuelRequestPopup
+          request={duelRequest}
+          onAccept={acceptDuel}
+          onDecline={handleDeclineDuel}
+        />
+      )}
     </DesignCircles>
   );
 };

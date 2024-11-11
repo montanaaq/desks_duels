@@ -3,6 +3,6 @@ export interface SeatType {
 	rowNumber: number,
 	deskNumber: number,
 	variant: number,
-	occupiedBy: number | null,
+	occupiedBy: string,
 	dueled: boolean
 }
