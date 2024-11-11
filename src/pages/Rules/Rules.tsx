@@ -19,8 +19,8 @@ const Rules: FC = () => {
   };
 
   const handleNextClick = () => {
-    // const telegramId = tg.initDataUnsafe?.user.id;
-    const telegramId = 1
+    const telegramId = tg.initDataUnsafe?.user.id;
+    // const telegramId = 1
     if (isChecked) {
       handleAcceptRules(telegramId, navigate).then((r) => r);
       toast.promise(handleAcceptRules(telegramId, navigate), {
