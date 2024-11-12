@@ -11,11 +11,8 @@ import { userType } from "./types/user.types.ts";
 const App: FC = () => {
   const [user, setUser] = useState<userType | null>(null);
   const [loading, setLoading] = useState(true);
-  // const [telegramId, setTelegramId] = useState<number>(); // Initial sample Telegram ID
   const { tg } = useTelegram();
   const telegramId = tg.initDataUnsafe?.user.id;
-  // const telegramId = 1
-
 
   const getUserByTelegramId = async (telegramId: number) => {
     try {
@@ -45,6 +42,38 @@ const App: FC = () => {
     checkUser();
   }, [telegramId]);
 
+  // Polling Effect to Keep Backend and Bot Active
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Ping the Backend
+      fetch("https://desks-duels-backend.onrender.com/health-check")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Backend health check failed");
+          }
+          console.log("Backend is active");
+        })
+        .catch((error) => {
+          console.error("Error pinging backend:", error);
+        });
+
+      // Ping the Telegram Bot
+      fetch("https://desks-duels-bot.onrender.com/health-check")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Bot health check failed");
+          }
+          console.log("Bot is active");
+        })
+        .catch((error) => {
+          console.error("Error pinging bot:", error);
+        });
+    }, 240000); // 240,000 ms = 4 minutes
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
+  }, []);
+
   if (loading) return <div>Loading...</div>;
 
   if (!user) {
@@ -61,6 +90,7 @@ const App: FC = () => {
           </p>
           <Footer />
         </div>
+        {/* Uncomment the following block if you want to manually enter Telegram ID for testing */}
         {/* <div>
           <input
             type="number"
