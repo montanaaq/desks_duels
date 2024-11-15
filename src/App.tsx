@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 import DesignCircles from "./components/DesignCircles/DesignCircles.tsx";
 import Footer from "./components/Footer.tsx";
 import Logo from "./components/Logo.tsx";
