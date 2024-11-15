@@ -9,7 +9,7 @@ a {
 }
 
 .home_wrapper {
-  min-height: calc(100vh - 57px);
+  min-height: calc(100vh - 67px);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -41,7 +41,7 @@ a {
 
 @media only screen and (max-width: 380px) and (max-width: 568px) {
   .home_wrapper {
-    height: calc(100vh - 57px);
+    height: calc(100vh - 67px);
   }
   .title {
     margin-top: 40px;

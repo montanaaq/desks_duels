@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 
 interface TimerState {
-  minutes: string;
-  seconds: string;
+  time: string
   isGameActive: boolean;
 }
 
@@ -39,10 +38,8 @@ const getNextPeriod = () => {
   }
   return { isBreak: false, timeLeft: 0 };
 };
-
 const useSchoolTimer = (): TimerState => {
-  const [minutes, setMinutes] = useState('00');
-  const [seconds, setSeconds] = useState('00');
+  const [time, setTime] = useState('00:00');
   const [isGameActive, setIsGameActive] = useState(false);
 
   useEffect(() => {
@@ -51,12 +48,10 @@ const useSchoolTimer = (): TimerState => {
 
       setIsGameActive(isBreak);
 
-      const mins = Math.floor((timeLeft / 1000 / 60) % 60); // Get the minutes
-      const secs = Math.floor((timeLeft / 1000) % 60); // Get the seconds
+      const mins = Math.floor(timeLeft / 1000 / 60);
+      const secs = Math.floor((timeLeft / 1000) % 60);
 
-      // Ensure minutes and seconds are always two digits
-      setMinutes(String(mins).padStart(2, '0')); 
-      setSeconds(String(secs).padStart(2, '0'));
+      setTime(`${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`);
     };
 
     updateTimer();
@@ -65,7 +60,6 @@ const useSchoolTimer = (): TimerState => {
     return () => clearInterval(interval);
   }, []);
 
-  return { minutes, seconds, isGameActive };
+  return { time, isGameActive };
 };
-
 export default useSchoolTimer;

@@ -4,15 +4,14 @@ import { FC } from "react";
 import styles from "./Timer.module.css";
 
 interface TimerProps {
-  minutes: number;
-  seconds: number;
+  time: string;
   isActive: boolean;
 }
 
-const Timer: FC<TimerProps> = ({ minutes, seconds, isActive }) => {
+const Timer: FC<TimerProps> = ({ time, isActive }) => {
   return (
     <div className={`${styles.timer} ${isActive ? styles.active : ""}`}>
-      {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+      {time}
     </div>
   );
 };

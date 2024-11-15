@@ -32,7 +32,7 @@ export interface DuelRequest {
 }
 
 const Home: FC<HomeProps> = ({ user }) => {
-  const { minutes, seconds, isGameActive } = useSchoolTimer();
+  const { time, isGameActive } = useSchoolTimer();
   const [desks, setDesks] = useState<SeatType[]>([]);
   const [selectedSeat, setSelectedSeat] = useState<SeatType | null>(null);
   const [occupiedByUser, setOccupiedByUser] = useState<userType | null>(null);
@@ -242,12 +242,12 @@ const Home: FC<HomeProps> = ({ user }) => {
             width: "82.5px",
             height: "55px",
             position: "absolute",
-            top: "25px",
+            top: "35px",
             left: "10px",
           }}
           textStyles={{
             position: "absolute",
-            top: "10px",
+            top: "20px",
             left: "10px",
             fontSize: "12px",
           }}
@@ -258,8 +258,7 @@ const Home: FC<HomeProps> = ({ user }) => {
           </p>
           <p className={styles.subtitle}>До начала</p>
           <Timer
-            minutes={Number(minutes)}
-            seconds={Number(seconds)}
+            time={time}
             isActive={isGameActive}
           />
           {isGameActive && (
