@@ -31,5 +31,5 @@
 }
 
 .modal_button:hover {
-  background-color: var(--color-accent-dark);
+  opacity: .8;
 }

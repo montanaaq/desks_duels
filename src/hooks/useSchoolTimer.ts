@@ -6,8 +6,8 @@ interface TimerState {
 }
 
 const schedule = [
-  { start: '08:00', end: '08:40', isBreak: false },
-  { start: '08:09', end: '08:50', isBreak: true },
+  { start: '08:00', end: '08:13', isBreak: false },
+  { start: '08:13', end: '08:50', isBreak: true },
   { start: '08:50', end: '09:30', isBreak: false },
   { start: '09:30', end: '09:40', isBreak: true },
   { start: '09:40', end: '10:20', isBreak: false },
