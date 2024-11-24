@@ -3,6 +3,7 @@ import { FC } from "react";
 import { toast } from "sonner";
 import { SeatType } from "../../types/seat.types";
 import styles from "./Seat.module.css";
+import useSchoolTimer from "../../hooks/useSchoolTimer";
 
 interface SeatProps {
   seat: SeatType;
@@ -12,8 +13,8 @@ interface SeatProps {
 }
 
 const Seat: FC<SeatProps> = ({ seat, isSelected, onSelect, isModalOpen }) => {
-  // const { isGameActive } = useSchoolTimer();
-  const isGameActive = true;
+  const { isGameActive } = useSchoolTimer();
+  // const isGameActive = true;
 
   let circleClass;
   if (seat.status === 'dueled') {
