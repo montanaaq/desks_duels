@@ -1,7 +1,6 @@
 // src/components/Seat/Seat.tsx
 import { FC } from "react";
 import { toast } from "sonner";
-import useSchoolTimer from "../../hooks/useSchoolTimer";
 import { SeatType } from "../../types/seat.types";
 import styles from "./Seat.module.css";
 
@@ -13,15 +12,18 @@ interface SeatProps {
 }
 
 const Seat: FC<SeatProps> = ({ seat, isSelected, onSelect, isModalOpen }) => {
-  const { isGameActive } = useSchoolTimer();
-  // const isGameActive = true
+  // const { isGameActive } = useSchoolTimer();
+  const isGameActive = true;
 
   let circleClass;
-  if (seat.dueled && seat.occupiedBy) {
-    circleClass = styles.occupied;
+  if (seat.status === 'dueled') {
+    // If seat has been dueled, mark it as unavailable
+    circleClass = styles.unavailable;
   } else if (seat.occupiedBy) {
-    circleClass = styles.dueled;
+    // If seat is occupied and not dueled
+    circleClass = styles.occupied;
   } else {
+    // If seat is free (not occupied)
     circleClass = styles.free;
   }
 

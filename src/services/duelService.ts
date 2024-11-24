@@ -5,7 +5,7 @@ import { url } from "./userService";
 
 type DuelResponse = {
     message: string;
-    duel: duelType;
+    duel: duelType | null;
 };
 
 export const requestDuel = async (player1: string, player2: string, seatId: number): Promise<DuelResponse> => {
@@ -47,14 +47,51 @@ export const sendAcceptDuel = async (duelId: number): Promise<DuelResponse> => {
     }
 }
 
-export const completeDuel = async (duelId: number, winnerId: string): Promise<DuelResponse> => {
+export const completeDuel = async (duelId: number): Promise<DuelResponse> => {
     try {
+        console.log(`Attempting to complete duel: duelId=${duelId}`);
+        
         const response = await fetch(`${url}/duels/${duelId}/complete`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            
+            if (response.status === 404) {
+                console.warn(`Duel ${duelId} not found`);
+                throw new Error('Duel not found');
+            }
+            
+            if (response.status === 409) {
+                console.warn(`Duel ${duelId} cannot be completed due to current status`);
+                return { message: 'Duel cannot be completed', duel: null };
+            }
+
+            console.error(`Unexpected error completing duel: ${errorData.error}`);
+            throw new Error(errorData.error || 'Unknown error completing duel');
+        }
+        
+        const result = await response.json();
+        console.log(`Duel ${duelId} completed successfully`, result);
+        return result;
+        
+    } catch (error: any) {
+        console.error('Error completing duel:', error);
+        throw new Error(error.message || 'Unknown error');
+    }
+}
+
+export const declineDuel = async (duelId: number): Promise<DuelResponse> => {
+    try {
+        const response = await fetch(`${url}/duels/${duelId}/decline`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ winnerId: winnerId }),
         });
 
         if (!response.ok) {

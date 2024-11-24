@@ -1,7 +1,7 @@
 // services/userService.ts
 
-// export const url = 'http://localhost:3000'; // Убедитесь, что URL правильный
-export const url = 'https://desks-duels-backend.onrender.com';
+export const url = 'http://localhost:3000'; // localhost
+// export const url = 'https://desks-duels-backend.onrender.com';
 
 export const getUsers = async () => {
     try {
@@ -23,14 +23,14 @@ export const getUsers = async () => {
     }
 }
 
-export const findUserById = async (telegramId: number) => {
+export const findUserById = async (telegramId: string) => {
     try {
         const response = await fetch(`${url}/auth/check`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ telegramId: telegramId.toString() }),
+            body: JSON.stringify({ telegramId: telegramId }),
         });
 
         if (!response.ok) {
@@ -48,14 +48,14 @@ export const findUserById = async (telegramId: number) => {
     }
 };
 
-export const findOccupiedByUser = async (occupiedById: number) => {
+export const findOccupiedByUser = async (occupiedById: string) => {
     try {
         const response = await fetch(`${url}/users/get-occupiedBy-user`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ occupiedById: occupiedById.toString() }),
+            body: JSON.stringify({ occupiedById: occupiedById }),
         });
 
         if (!response.ok) {

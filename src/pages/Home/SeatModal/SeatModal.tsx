@@ -37,19 +37,19 @@ const SeatModal: FC<SeatModalProps> = ({
           <p>Статус:</p>
           <p
             style={
-              seat.dueled
+              seat.status === "dueled"
                 ? { color: "var(--color-error)" }
                 : { color: "var(--color-success)" }
             }
           >
-            {seat.dueled ? "Дуэль завершена" : "Доступно для дуэли"}
+            {seat.status == 'dueled' ? "Дуэль завершена" : "Доступно для дуэли"}
           </p>
         </div>
         <p className={styles.occupied_info}>
           Занято:{" "}
           {seat.occupiedBy ? occupiedByUser?.name ?? "Loading..." : "Нет"}
         </p>
-        {!seat.dueled &&
+        {seat.status !== "dueled" &&
           user.telegramId !== seat.occupiedBy &&
           (seat.occupiedBy ? (
             <button className={styles.modal_button} onClick={onChallenge}>

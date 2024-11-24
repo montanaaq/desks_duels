@@ -11,8 +11,9 @@ import { userType } from "./types/user.types.ts";
 const App: FC = () => {
   const [user, setUser] = useState<userType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [telegramId, setTelegramId] = useState<number | null>(null);
   const { tg } = useTelegram();
-  const telegramId = tg.initDataUnsafe?.user.id;
+  // const telegramId = tg.initDataUnsafe?.user.id;
   // const telegramId = 1;
 
   const getUserByTelegramId = async (telegramId: number) => {
@@ -43,8 +44,6 @@ const App: FC = () => {
     checkUser();
   }, [telegramId]);
 
-
-
   if (loading) return <div>Loading...</div>;
 
   if (!user) {
@@ -62,14 +61,14 @@ const App: FC = () => {
           <Footer />
         </div>
         {/* Uncomment the following block if you want to manually enter Telegram ID for testing */}
-        {/* <div>
+        <div>
           <input
             type="number"
-            value={telegramId}
+            value={telegramId ?? ""}
             onChange={(e) => setTelegramId(Number(e.target.value))}
             placeholder="Enter Telegram ID"
           />
-        </div> */}
+        </div>
       </DesignCircles>
     );
   }
