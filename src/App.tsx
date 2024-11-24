@@ -56,7 +56,19 @@ const App: FC = () => {
           />
           <p>
             Пользователь не найден! Попробуйте зарегистрироваться с помощью{" "}
-            <b>/start</b> в нашем телеграм боте <b>@desks_duels</b>
+            <b>/start</b> в нашем телеграм боте{" "}
+            <b>@</b>
+            <a
+              style={{
+                color: "var(--color-text)",
+                textUnderlineOffset: "3px",
+                textDecorationThickness: "0.07rem",
+                fontWeight: "bold",
+              }}
+              target="_blank"
+              href="https://t.me/desksduels_bot"
+            >desksduels_bot
+            </a>
           </p>
           <Footer />
         </div>
