@@ -38,8 +38,7 @@
 
 .unavailable {
   background-color: var(--color-error);
-  cursor: not-allowed;
-  opacity: 0.6;
+  box-shadow: 0 0 10px var(--color-error);
 }
 
 .unavailable:hover {
