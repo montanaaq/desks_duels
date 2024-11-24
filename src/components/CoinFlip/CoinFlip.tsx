@@ -25,27 +25,10 @@ const CoinFlip: FC = () => {
   const [flipping, setFlipping] = useState(true);
   const [result, setResult] = useState<string | null>(null);
   const [winnerName, setWinnerName] = useState<string | null>(null);
-  const [challengerName, setChallengerName] = useState<string | null>(null);
   const [challengedName, setChallengedName] = useState<string | null>(null);
+  const [challengerName, setChallengerName] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUserNames = async () => {
-      try {
-        const [challenger, challenged] = await Promise.all([
-          findUserById(challengerId),
-          findUserById(challengedId),
-        ]);
-        setChallengerName(challenger.user?.name ?? "Вы");
-        setChallengedName(challenged.user?.name ?? "Соперник");
-      } catch (error) {
-        toast.error("Ошибка загрузки участников дуэли");
-      }
-    };
-
-    if (challengerId && challengedId) {
-      fetchUserNames();
-    }
-
     if (!challengerId || !challengedId || !duelId) {
       toast.error("Параметры дуэли не найдены! Попробуйте позже.");
       setTimeout(() => {
@@ -88,17 +71,11 @@ const CoinFlip: FC = () => {
             setResult(response.duel.coinFlipResult);
 
             // Safely set winner name with fallback
-            const winnerName = response.duel.winner ?? "";
+            const winnerUser = await findUserById(response.duel.winner);
+            const winnerName = winnerUser.user?.name;
             setWinnerName(winnerName);
-
-            // Determine winner display name
-            const winnerDisplayName =
-              response.duel.winner === challengerId
-                ? challengerName
-                : challengedName;
-
             // Show winner information prominently
-            toast.success(`🏆 ${winnerDisplayName} выиграл дуэль!`, {
+            toast.success(`🏆 ${winnerName} выиграл дуэль!`, {
               duration: 3000,
               position: "top-center",
             });
@@ -162,6 +139,8 @@ const CoinFlip: FC = () => {
     setFlipping(true);
 
     try {
+      setChallengedName(await findUserById(challengedId).then((user) => user.user?.name));
+      setChallengerName(await findUserById(challengerId).then((user) => user.user?.name));
       const response = await completeDuel(Number(duelId));
 
       // Null check for response and duel
