@@ -1,7 +1,7 @@
 // services/userService.ts
 
-export const url = 'http://localhost:3000'; // localhost
-// export const url = 'https://desks-duels-backend.onrender.com';
+// export const url = 'http://localhost:3000'; // localhost
+export const url = 'https://desks-duels-backend.onrender.com';
 
 export const getUsers = async () => {
     try {
