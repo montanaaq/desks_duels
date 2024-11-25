@@ -14,7 +14,7 @@ const App: FC = () => {
   // const [telegramId, setTelegramId] = useState<string | null>(null);
   const { tg } = useTelegram();
   const telegramId = tg.initDataUnsafe?.user.id;
-  // const telegramId = 1;
+  // const telegramId = '1';
 
   const getUserByTelegramId = async (telegramId: string) => {
     try {

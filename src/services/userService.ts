@@ -1,27 +1,22 @@
 // services/userService.ts
 
-// export const url = 'http://localhost:3000'; // localhost
-export const url = 'https://desks-duels-backend.onrender.com';
+// Determine the URL based on the environment
+const isLocal = false;
+export const url = isLocal
+  ? import.meta.env.VITE_LOCAL_URL 
+  : import.meta.env.VITE_PROD_URL;
 
 export const getUsers = async () => {
     try {
         const response = await fetch(`${url}/users`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
         });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        return response.json();
+        return await response.json();
     } catch (error) {
-        console.error(error);
+        console.error('Error fetching users:', error);
         throw error;
     }
-}
+};
 
 export const findUserById = async (telegramId: string) => {
     try {
@@ -92,4 +87,3 @@ export const setDuelingFlag = async (telegramId: string, dueling: boolean) => {
         throw new Error(error.message || 'Unknown error');
     }
 };
- 
