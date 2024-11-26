@@ -101,21 +101,30 @@ const Home: FC<HomeProps> = ({ user }) => {
       try {
         const latestSeat = await getSeatById(selectedSeat.id);
         // Проверяем, не участвует ли место в дуэли
-        if (latestSeat.status === 'dueled') {
-          toast.error("Это место уже участвует в дуэли.");
+        if (latestSeat.status === "dueled") {
+          toast.error("Это место уже участвует в дуэли.", {
+            closeButton: true,
+            duration: 3000,
+          });
           return;
         }
 
         // Проверяем, не участвует ли текущий пользователь в другой дуэли
         if (user.dueling) {
-          toast.error("Вы уже участвуете в другой дуэли.");
+          toast.error("Вы уже участвуете в другой дуэли.", {
+            closeButton: true,
+            duration: 3000,
+          });
           return;
         }
 
         // Проверяем, не участвует ли противник в другой дуэли
         const opponent = await findUserById(selectedSeat.occupiedBy);
         if (opponent.user.dueling) {
-          toast.error("Противник уже участвует в другой дуэли.");
+          toast.error("Противник уже участвует в другой дуэли.", {
+            closeButton: true,
+            duration: 3000,
+          });
           return;
         }
 
@@ -164,9 +173,15 @@ const Home: FC<HomeProps> = ({ user }) => {
             "One of the players is already in an active duel."
           )
         ) {
-          toast.error("Один из игроков уже участвует в активной дуэли.");
+          toast.error("Один из игроков уже участвует в активной дуэли.", {
+            closeButton: true,
+            duration: 3000,
+          });
         } else {
-          toast.error(error.message || "Ошибка при создании дуэли.");
+          toast.error(error.message || "Ошибка при создании дуэли.", {
+            closeButton: true,
+            duration: 3000,
+          });
         }
       }
     }
@@ -259,7 +274,10 @@ const Home: FC<HomeProps> = ({ user }) => {
       });
     } catch (e: any) {
       console.log(`Error accepting duel: ${e}`);
-      toast.error(e.message || "Ошибка при принятии дуэли.");
+      toast.error(e.message || "Ошибка при принятии дуэли.", {
+        closeButton: true,
+        duration: 3000,
+      });
     }
   };
 
@@ -275,13 +293,20 @@ const Home: FC<HomeProps> = ({ user }) => {
 
         if (isTimeout) {
           toast.info(
-            `Время истекло. ${request.challengerName} занимает место.`
+            `Время истекло. ${request.challengerName} занимает место.`, {
+              duration: 5000
+            }
           );
         } else {
-          toast.info(`Вы отклонили дуэль с ${request.challengerName}.`);
+          toast.info(`Вы отклонили дуэль с ${request.challengerName}.`, {
+            duration: 5000
+          });
         }
       } catch (error: any) {
-        toast.error(error.message || "Ошибка при отклонении дуэли");
+        toast.error(error.message || "Ошибка при отклонении дуэли", {
+          closeButton: true,
+          duration: 3000,
+        });
       } finally {
         duelRequestRef.current = null;
         setDuelRequest(null);

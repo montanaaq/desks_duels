@@ -31,7 +31,10 @@ const Seat: FC<SeatProps> = ({ seat, isSelected, onSelect, isModalOpen }) => {
   const handleSeatClick = () => {
     if (!isGameActive) {
       setTimeout(() => {
-        toast.error("Места можно занимать только когда игра активна!");
+        toast.error("Места можно занимать только когда игра активна!", {
+          closeButton: true,
+          duration: 3000,
+        });
       }, 250);
       return;
     }
