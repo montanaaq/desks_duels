@@ -436,7 +436,7 @@ const Home: FC<HomeProps> = ({ user }) => {
   return (
     <DesignCircles>
       <Toaster
-        position="bottom-center"
+        position="top-center"
         expand={true}
         richColors
         closeButton={false}

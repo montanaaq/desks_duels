@@ -174,7 +174,7 @@ const CoinFlip: FC = () => {
       console.error("Ошибка при завершении дуэли:", error);
       toast.error("Не удалось завершить дуэль. Попробуйте позже.", {
         duration: 3000,
-        position: "bottom-center",
+        position: "top-center",
       });
 
       // Fallback navigation in case of error
@@ -191,7 +191,7 @@ const CoinFlip: FC = () => {
 
   return (
     <DesignCircles>
-      <Toaster position="bottom-center" expand={true} richColors />
+      <Toaster position="top-center" expand={true} richColors />
       <div className={styles.coinFlip_wrapper}>
         <Logo
           style={{ marginTop: "10px", width: "135px", height: "90px" }}
