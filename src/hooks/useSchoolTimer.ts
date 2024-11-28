@@ -17,7 +17,7 @@ const schedule = [
   { start: '11:40', end: '12:20', isBreak: false },
   { start: '12:20', end: '12:30', isBreak: true },
   { start: '12:30', end: '13:10', isBreak: false },
-  { start: '13:10', end: '13:20', isBreak: true },
+  { start: '23:18', end: '23:23', isBreak: true },
   { start: '13:20', end: '14:00', isBreak: false }
 ];
 
