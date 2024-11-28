@@ -3,9 +3,9 @@ export interface duelType {
     player1: string;
     player2: string;
     seatId: number;
-    status: "completed" | "pending" | "declined" | "accepted";
+    status: "completed" | "pending" | "declined" | "accepted" | "timeout";
     winner: string;
-    coinFlipResult: string;
+    coinFlipResult: 'Орёл' | 'Решка';
     initiator: {
         telegramId: string;
         dueling: boolean
