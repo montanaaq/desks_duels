@@ -22,7 +22,7 @@ const Footer: FC = () => {
           color: "var(--color-text)",
           textUnderlineOffset: "1px",
           textDecorationThickness: "0.03rem",
-		  fontWeight: "bold"
+          fontWeight: "bold",
         }}
         target="_blank"
         href="https://montaanaq.netlify.app/"
