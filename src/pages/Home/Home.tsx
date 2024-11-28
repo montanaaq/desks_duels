@@ -292,13 +292,14 @@ const Home: FC<HomeProps> = ({ user }) => {
 
         if (isTimeout) {
           toast.info(
-            `Время истекло. ${request.challengerName} занимает место.`, {
-              duration: 5000
+            `Время истекло. ${request.challengerName} занимает место.`,
+            {
+              duration: 5000,
             }
           );
         } else {
           toast.info(`Вы отклонили дуэль с ${request.challengerName}.`, {
-            duration: 5000
+            duration: 5000,
           });
         }
       } catch (error: any) {

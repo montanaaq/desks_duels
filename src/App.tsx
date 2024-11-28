@@ -13,8 +13,8 @@ const App: FC = () => {
   const [loading, setLoading] = useState(true);
   // const [telegramId, setTelegramId] = useState<string | null>(null);
   const { tg } = useTelegram();
-  // const telegramId = tg.initDataUnsafe?.user.id;
-  const telegramId = '1';
+  const telegramId = tg.initDataUnsafe?.user.id;
+  // const telegramId = '1';
 
   const getUserByTelegramId = async (telegramId: string) => {
     try {
@@ -51,8 +51,8 @@ const App: FC = () => {
       <DesignCircles>
         <div className="App_if_user_not_found">
           <Logo
-            style={{ marginTop: "10px", width: "135px", height: "90px" }}
-            textStyles={{ fontSize: "20px", marginTop: "10px" }}
+            style={{ marginTop: "10px", width: "160px", height: "115px" }}
+            textStyles={{ fontSize: "23px", marginTop: "10px" }}
           />
           <p>
             Пользователь не найден! Попробуйте зарегистрироваться с помощью{" "}
