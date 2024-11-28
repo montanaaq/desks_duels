@@ -66,12 +66,34 @@ body {
   min-height: calc(100vh - 57px);
   display: flex;
   flex-direction: column;
-  justify-content: start;
+  justify-content: space-between;
   align-items: center;
-  padding: 20px;
+  padding: 0 20px;
 }
+
+.App_if_user_not_found > :first-child {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.App_if_user_not_found > :nth-child(2) {
+  margin: auto 0;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.App_if_user_not_found > :last-child {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .App_if_user_not_found p {
   font-size: larger;
-  margin-top: 100px;
   text-align: center;
+  max-width: 400px; /* Optional: limit width for better readability */
 }
