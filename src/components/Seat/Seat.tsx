@@ -3,7 +3,7 @@ import { FC } from "react";
 import { toast } from "sonner";
 import { SeatType } from "../../types/seat.types";
 import styles from "./Seat.module.css";
-import useSchoolTimer from "../../hooks/useSchoolTimer";
+// import useSchoolTimer from "../../hooks/useSchoolTimer";
 
 interface SeatProps {
   seat: SeatType;
