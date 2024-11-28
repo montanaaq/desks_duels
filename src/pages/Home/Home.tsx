@@ -4,7 +4,6 @@ import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { toast, Toaster } from "sonner";
 import DesignCircles from "../../components/DesignCircles/DesignCircles";
 import Footer from "../../components/Footer";
-import Logo from "../../components/Logo";
 import useSchoolTimer from "../../hooks/useSchoolTimer";
 import {
   declineDuel,
@@ -443,21 +442,6 @@ const Home: FC<HomeProps> = ({ user }) => {
         closeButton={false}
       />
       <div className={styles.home_wrapper}>
-        <Logo
-          style={{
-            width: "82.5px",
-            height: "55px",
-            position: "absolute",
-            top: "35px",
-            left: "10px",
-          }}
-          textStyles={{
-            position: "absolute",
-            top: "20px",
-            left: "10px",
-            fontSize: "12px",
-          }}
-        />
         <div className={styles.container}>
           <p className={styles.title}>
             Привет, <b>{user.name}</b>!
