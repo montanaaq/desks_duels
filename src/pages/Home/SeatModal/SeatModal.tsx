@@ -47,7 +47,7 @@ const SeatModal: FC<SeatModalProps> = ({
         </div>
         <p className={styles.occupied_info}>
           Занято:{" "}
-          {seat.occupiedBy ? occupiedByUser?.name ?? "Loading..." : "Нет"}
+          {seat.occupiedBy ? occupiedByUser?.name ?? "Загрузка..." : "Нет"}
         </p>
         {seat.status !== "dueled" &&
           user.telegramId !== seat.occupiedBy &&
