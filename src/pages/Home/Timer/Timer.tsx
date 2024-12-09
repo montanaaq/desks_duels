@@ -1,6 +1,6 @@
 // src/components/Home/Timer/Timer.tsx
 
-import { FC } from "react";
+import type { FC } from "react";
 import styles from "./Timer.module.css";
 
 interface TimerProps {
