@@ -1,7 +1,7 @@
 // services/userService.ts
 
 // Determine the URL based on the environment
-const isLocal = true;
+const isLocal = false;
 export const url = isLocal
   ? import.meta.env.VITE_LOCAL_URL 
   : import.meta.env.VITE_PROD_URL;
