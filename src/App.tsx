@@ -12,10 +12,8 @@ import type { userType } from "./types/user.types.ts";
 const App: FC = () => {
   const [user, setUser] = useState<userType | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  // const [telegramId, setTelegramId] = useState<string | null>(null);
   const { tg } = useTelegram();
-  const telegramId = tg.initDataUnsafe?.user.id;
-  // const telegramId = 1;
+  const telegramId = tg?.initDataUnsafe?.user?.id;
 
   const getUserByTelegramId = async (telegramId: string) => {
     try {
@@ -30,24 +28,35 @@ const App: FC = () => {
 
   useEffect(() => {
     const checkUser = async () => {
-      if (!telegramId) {
-        console.error("Telegram ID is undefined");
-        setLoading(false);
-        return;
-      }
+      try {
+        if (!tg) {
+          console.error("Telegram WebApp is not initialized");
+          setLoading(false);
+          return;
+        }
 
-      const user = await getUserByTelegramId(telegramId);
-      if (user) {
-        setUser(user);
+        if (!telegramId) {
+          console.error("Telegram ID is undefined");
+          setLoading(false);
+          return;
+        }
+
+        const user = await getUserByTelegramId(telegramId);
+        if (user) {
+          setUser(user);
+        }
+      } catch (error) {
+        console.error("Error in checkUser:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     checkUser();
-  }, [telegramId]);
+  }, [telegramId, tg]);
 
   if (loading) return <div>Loading...</div>;
 
-  if (!user) {
+  if (!tg || !telegramId || !user) {
     return (
       <DesignCircles>
         <div className="App_if_user_not_found">
@@ -75,15 +84,6 @@ const App: FC = () => {
           </p>
           <Footer styles={{ marginTop: "auto" }} />
         </div>
-        {/* Uncomment the following block if you want to manually enter Telegram ID for testing */}
-        {/* <div>
-          <input
-            type="number"
-            value={telegramId ?? ""}
-            onChange={(e) => setTelegramId(e.target.value)}
-            placeholder="Enter Telegram ID"
-          />
-        </div> */}
       </DesignCircles>
     );
   }

@@ -1,22 +1,21 @@
 declare global {
     interface Window {
-      Telegram: any;
+      Telegram?: any;
     }
   }
 
-const tg = window.Telegram.WebApp;
+const tg = typeof window !== 'undefined' && window.Telegram?.WebApp ? window.Telegram.WebApp : null;
 
 export function useTelegram() {
-
     const onClose = () => {
-        tg.close()
+        tg?.close()
     }
 
     const onToggleButton = () => {
-        if(tg.MainButton.isVisible) {
+        if(tg?.MainButton?.isVisible) {
             tg.MainButton.hide();
         } else {
-            tg.MainButton.show();
+            tg?.MainButton?.show();
         }
     }
 
@@ -24,7 +23,7 @@ export function useTelegram() {
         onClose,
         onToggleButton,
         tg,
-        user: tg.initDataUnsafe?.user,
-        queryId: tg.initDataUnsafe?.query_id,
+        user: tg?.initDataUnsafe?.user,
+        queryId: tg?.initDataUnsafe?.query_id,
     }
 }
