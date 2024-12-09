@@ -1,8 +1,10 @@
 // src/components/Home/Home.tsx
 
-import { FC, useCallback, useEffect, useRef, useState } from "react";
+import type { FC } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast, Toaster } from "sonner";
 import DesignCircles from "../../components/DesignCircles/DesignCircles";
+import DuelRequestPopup from "../../components/DuelRequestPopup/DuelRequestPopup";
 import Footer from "../../components/Footer";
 import useSchoolTimer from "../../hooks/useSchoolTimer";
 import {
@@ -13,8 +15,8 @@ import {
 import { getDesks, getSeatById, takeSeat } from "../../services/seatService";
 import { initializeSocket, socket } from "../../services/socketService";
 import { findUserById } from "../../services/userService";
-import { SeatType } from "../../types/seat.types";
-import { userType } from "../../types/user.types";
+import type { SeatType } from "../../types/seat.types";
+import type { userType } from "../../types/user.types";
 import DeskContainer from "./DeskContainer/DeskContainer";
 import styles from "./Home.module.css";
 import SeatModal from "./SeatModal/SeatModal";
@@ -31,6 +33,14 @@ export interface DuelRequest {
   challengedId: string;
   challengedName: string;
   seatId: number;
+}
+
+interface DuelTimeoutEventDetail {
+  duel: {
+    seatId: number;
+    player1: string;
+    player2: string;
+  };
 }
 
 const Home: FC<HomeProps> = ({ user }) => {
@@ -73,7 +83,7 @@ const Home: FC<HomeProps> = ({ user }) => {
         setDesks(updatedSeats);
       },
       duelRequestRef,
-      showDuelRequestPopup
+      showDuelRequestPopupToOpponent
     );
 
     // Request initial seats data
@@ -84,14 +94,146 @@ const Home: FC<HomeProps> = ({ user }) => {
       setDesks(updatedSeats);
     });
 
+    // Listen for duel response events
+    socket.on("duelAccepted", (data: { duelId: number }) => {
+      console.log("Home: Duel accepted, dismissing toast", data.duelId);
+      toast.dismiss(data.duelId);
+    });
+
+    socket.on(
+      "duelDeclined",
+      async (data: {
+        duel: {
+          seatId: number;
+          player1: string;
+          player2: string;
+          isAutoDeclined: boolean;
+        };
+      }) => {
+        const { duel } = data;
+
+        try {
+          // Проверяем, что текущий пользователь участвует в этой дуэли
+          const isParticipant =
+            user.telegramId === duel.player1 ||
+            user.telegramId === duel.player2;
+
+          if (!isParticipant) {
+            return;
+          }
+
+          const [seat, player1Name] = await Promise.all([
+            getSeatById(duel.seatId),
+            findUserById(duel.player1),
+          ]);
+
+          // Если дуэль автоматически отклонена (по истечении времени)
+          if (duel.isAutoDeclined) {
+            if (user.telegramId === duel.player1) {
+              // Для инициатора дуэли
+              toast.success(
+                `Вы заняли место №${seat.id}, так как оппонент не ответил на вызов.`,
+                { duration: 5000 }
+              );
+            } else {
+              // Для оппонента
+              toast.info(
+                `Место #${seat.id} занято ${player1Name.user?.name}, так как вы не ответили на вызов.`,
+                { duration: 5000 }
+              );
+            }
+          } else {
+            // Для обычного отклонения
+            if (user.telegramId === duel.player1) {
+              toast.error(
+                `Ваш вызов на дуэль за место №${seat.id} был отклонен.`,
+                { duration: 5000 }
+              );
+            } else {
+              toast.success(
+                `Вы отклонили вызов на дуэль за место №${seat.id}.`,
+                { duration: 5000 }
+              );
+            }
+          }
+
+          // Обновляем состояние мест
+          setShouldRerender((prev) => !prev);
+        } catch (error) {
+          console.error("Ошибка при обработке отклонения дуэли:", error);
+          toast.error("Произошла ошибка при обработке отклонения дуэли");
+        }
+      }
+    );
+
     fetchInitialDesks();
 
     return () => {
       cleanupSocket();
       socket.off("seatsUpdated");
+      socket.off("duelAccepted");
+      socket.off("duelDeclined");
       if (rerenderTimeoutRef.current) {
         clearTimeout(rerenderTimeoutRef.current);
       }
+    };
+  }, [user.telegramId]);
+
+  useEffect(() => {
+    const handleDuelTimeout = async (event: Event) => {
+      const customEvent = event as CustomEvent<DuelTimeoutEventDetail>;
+      const { duel } = customEvent.detail; // Удалил isWinner
+
+      try {
+        // Проверяем, что текущий пользователь участвует в этой дуэли
+        const isParticipant =
+          user.telegramId === duel.player1 || user.telegramId === duel.player2;
+
+        if (!isParticipant) {
+          // Если пользователь не участник дуэли, ничего не делаем
+          return;
+        }
+
+        const seat = await getSeatById(duel.seatId);
+        const player1Name = await findUserById(duel.player1);
+
+        // Логика для инициатора дуэли (победителя по таймауту)
+        if (user.telegramId === duel.player1) {
+          try {
+            await takeSeat(user.telegramId, seat.id);
+            toast.success(
+              `Вы заняли место №${seat.id}, так как оппонент не ответил на вызов.`,
+              { duration: 5000 }
+            );
+          } catch (error) {
+            toast.error(
+              `Не удалось занять место №${seat.id}. Возможно, оно уже занято.`,
+              { duration: 5000 }
+            );
+          }
+        }
+        // Логика для оппонента
+        else {
+          toast.info(
+            `Место #${seat.id} занято ${player1Name.user?.name}, так как вы не ответили на вызов.`,
+            { duration: 5000 }
+          );
+        }
+
+        // Обновляем состояние мест
+        setShouldRerender((prev) => !prev);
+      } catch (error) {
+        console.error("Ошибка при обработке таймаута дуэли:", error);
+        toast.error("Произошла ошибка при обработке таймаута дуэли");
+      }
+    };
+
+    // Добавляем обработчик события таймаута дуэли
+    window.addEventListener("duelTimeout", handleDuelTimeout);
+
+    // Очищаем обработчик при размонтировании компонента
+    return () => {
+      window.removeEventListener("duelTimeout", handleDuelTimeout);
     };
   }, [user.telegramId]);
 
@@ -127,7 +269,7 @@ const Home: FC<HomeProps> = ({ user }) => {
           return;
         }
 
-        // Proceed with duel request
+        // render a toast with a loading indicator
         const response = await toast.promise(
           requestDuel(
             user.telegramId,
@@ -152,6 +294,23 @@ const Home: FC<HomeProps> = ({ user }) => {
             challengedName: occupiedByUser?.name || "Соперник",
             seatId: selectedSeat.id,
           };
+          // show a toast with the duel request to initiator
+          toast.custom(
+            (t: any) => (
+              <DuelRequestPopup
+                request={duelRequest}
+                onClose={() => toast.dismiss(t.id)}
+                isInitiator={true}
+                handleDeclineDuel={handleDeclineDuel}
+                handleAcceptDuel={handleAcceptDuel}
+              />
+            ),
+            {
+              duration: 60000,
+              id: duelRequest.duelId,
+              dismissible: false,
+            }
+          );
 
           // Emit duelRequest with duelId
           socket.emit("duelRequest", duelRequest);
@@ -186,81 +345,27 @@ const Home: FC<HomeProps> = ({ user }) => {
     }
   };
 
-  const showDuelRequestPopup = (request: DuelRequest) => {
-    const DuelRequestPopup: FC<{
-      request: DuelRequest;
-      onClose: () => void;
-    }> = ({ request, onClose }) => {
-      const [remainingTime, setRemainingTime] = useState(60);
-      const intervalRef = useRef<NodeJS.Timeout | null | undefined>(null);
-
-      useEffect(() => {
-        // Start the countdown
-        intervalRef.current = setInterval(() => {
-          setRemainingTime((prevTime) => {
-            if (prevTime <= 1) {
-              // Time expired
-              onClose();
-              return 0;
-            }
-            return prevTime - 1;
-          });
-        }, 1000);
-
-        // Cleanup interval on unmount
-        return () => {
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-          }
-        };
-      }, [onClose]);
-
-      const handleDecline = () => {
-        handleDeclineDuel(request, false, remainingTime);
-        onClose();
-      };
-
-      const handleAccept = () => {
-        acceptDuel(request);
-        onClose();
-      };
-
-      return (
-        <div className={styles.duel_request_pop_up}>
-          <p>
-            Пользователь <b>{request.challengerName}</b> вызвал вас на дуэль!
-          </p>
-          <p>Оставшееся время: {remainingTime} секунд</p>
-          <div>
-            <button className={styles.button_decline} onClick={handleDecline}>
-              Отказаться
-            </button>
-            <button className={styles.button_accept} onClick={handleAccept}>
-              Принять
-            </button>
-          </div>
-        </div>
-      );
-    };
-
-    // Show the custom toast with the new dynamic component
+  const showDuelRequestPopupToOpponent = (request: DuelRequest) => {
+    // Toast for the challenged user (recipient)
     toast.custom(
       (t: any) => (
         <DuelRequestPopup
           request={request}
           onClose={() => toast.dismiss(t.id)}
+          isInitiator={false}
+          handleDeclineDuel={handleDeclineDuel}
+          handleAcceptDuel={handleAcceptDuel}
         />
       ),
       {
         duration: 60000,
         id: request.duelId,
-        // Prevent auto-dismissal
         dismissible: false,
       }
     );
   };
 
-  const acceptDuel = async (request: DuelRequest) => {
+  const handleAcceptDuel = async (request: DuelRequest) => {
     try {
       duelRequestRef.current = null;
       setDuelRequest(null);
@@ -269,6 +374,11 @@ const Home: FC<HomeProps> = ({ user }) => {
 
       // Emit acceptDuel via Socket.IO
       socket.emit("acceptDuel", {
+        duelId: request.duelId,
+      });
+
+      // Dismiss the toast for both users
+      socket.emit("duelAccepted", {
         duelId: request.duelId,
       });
     } catch (e: any) {
@@ -287,8 +397,13 @@ const Home: FC<HomeProps> = ({ user }) => {
   ) => {
     const handleDecline = async () => {
       try {
-        // Send decline request to backend
-        await declineDuel(request.duelId);
+        // Send decline request to backend с параметром isTimeout
+        await declineDuel(request.duelId, isTimeout);
+
+        // Emit duelDeclined to close toasts for both users
+        socket.emit("duelDeclined", {
+          duelId: request.duelId,
+        });
 
         if (isTimeout) {
           toast.info(
@@ -320,7 +435,7 @@ const Home: FC<HomeProps> = ({ user }) => {
         {
           action: {
             label: "Принять",
-            onClick: () => acceptDuel(request),
+            onClick: () => handleAcceptDuel(request),
           },
         }
       );
@@ -334,7 +449,7 @@ const Home: FC<HomeProps> = ({ user }) => {
             {
               action: {
                 label: "Принять",
-                onClick: () => acceptDuel(request),
+                onClick: () => handleAcceptDuel(request),
               },
             }
           );

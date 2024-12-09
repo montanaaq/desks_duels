@@ -13,7 +13,7 @@
   font-size: 18px;
 }
 
-.modal_button {
+.modal_button, .challenge_button {
   position: absolute;
   width: 200px;
   height: 40px;

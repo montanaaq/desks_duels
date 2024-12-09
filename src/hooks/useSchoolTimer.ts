@@ -39,8 +39,8 @@ const getNextPeriod = () => {
   return { isBreak: false, timeLeft: 0 };
 };
 const useSchoolTimer = (): TimerState => {
-  const [time, setTime] = useState('00:00');
-  const [isGameActive, setIsGameActive] = useState(false);
+  const [time, setTime] = useState<string>('00:00');
+  const [isGameActive, setIsGameActive] = useState<boolean>(false);
 
   useEffect(() => {
     const updateTimer = () => {
@@ -62,4 +62,5 @@ const useSchoolTimer = (): TimerState => {
 
   return { time, isGameActive };
 };
+
 export default useSchoolTimer;

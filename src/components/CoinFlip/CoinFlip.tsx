@@ -1,6 +1,7 @@
 // pages/CoinFlip/CoinFlip.tsx
 
-import { FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type { FC } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import io from "socket.io-client";
 import { toast, Toaster } from "sonner";
@@ -22,7 +23,7 @@ const CoinFlip: FC = () => {
 
   const navigate = useNavigate();
 
-  const [flipping, setFlipping] = useState(true);
+  const [flipping, setFlipping] = useState<boolean>(true);
   const [result, setResult] = useState<string | null>(null);
   const [winnerName, setWinnerName] = useState<string | null>(null);
   const [challengedName, setChallengedName] = useState<string | null>(null);
@@ -76,7 +77,7 @@ const CoinFlip: FC = () => {
             setWinnerName(winnerName);
             // Show winner information prominently
             toast.success(`🏆 ${winnerName} выиграл дуэль!`, {
-              duration: 3000,
+              duration: 5000,
               position: "top-center",
             });
 
@@ -84,7 +85,7 @@ const CoinFlip: FC = () => {
             setTimeout(() => {
               console.log(`Перенаправляем на страницу выбора места`);
               navigate("/");
-            }, 3000);
+            }, 5000);
           } else {
             throw new Error("Invalid duel response");
           }
@@ -98,7 +99,7 @@ const CoinFlip: FC = () => {
           // Fallback navigation in case of error
           setTimeout(() => {
             navigate("/");
-          }, 3000);
+          }, 5000);
         }
       }
     };
@@ -156,7 +157,7 @@ const CoinFlip: FC = () => {
         setWinnerName(winnerName);
         // Показываем информацию о победителе
         toast.info(`🏆 ${winnerName} выиграл дуэль!`, {
-          duration: 3000,
+          duration: 5000,
         });
 
         // Emit socket event with duel result
@@ -166,7 +167,7 @@ const CoinFlip: FC = () => {
         });
         setTimeout(() => {
           navigate("/");
-        }, 3000);
+        }, 5000);
       } else {
         throw new Error("Invalid duel response");
       }

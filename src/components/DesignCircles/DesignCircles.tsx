@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react'
+import type { ReactNode, FC } from 'react'
 import styles from './DesignCircles.module.css'
 
 interface DesignCirclesProps {

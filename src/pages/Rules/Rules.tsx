@@ -1,5 +1,6 @@
 // pages/Rules/Rules.tsx
-import { FC, useState } from "react";
+import { useState } from "react";
+import type { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, Toaster } from "sonner";
 import DesignCircles from "../../components/DesignCircles/DesignCircles";
@@ -19,8 +20,8 @@ const Rules: FC = () => {
   };
 
   const handleNextClick = () => {
-    const telegramId = tg.initDataUnsafe?.user.id;
-    // const telegramId = 2;
+    // const telegramId = tg.initDataUnsafe?.user.id;
+    const telegramId = 1;
     if (isChecked) {
       handleAcceptRules(telegramId, navigate).then((r) => r);
       toast.promise(handleAcceptRules(telegramId, navigate), {
@@ -53,8 +54,8 @@ const Rules: FC = () => {
           <h1>Правила игры</h1>
           <ol>
             <li>
-              <b>Начало игры:</b> За 5-10 минут до урока включается "битва" за
-              места.
+              <b>Начало игры:</b> "Битва за места" включается автоматически
+              каждую перемену до 14:00, ваша задача только не забыть.
             </li>
             <li>
               <b>Выбор места:</b> За 1 минуту до урока откроется выбор мест.
@@ -62,11 +63,12 @@ const Rules: FC = () => {
             </li>
             <li>
               <b>Мини-игры:</b> Для получения места оба игрока соревнуются в
-              быстрой мини-игре. Побеждает тот, кто набрал больше очков.
+              быстрой мини-игре. Побеждает тот, кому повезет!
             </li>
             <li>
               <b>Результаты:</b> Победитель закрепляет за собой место до конца
-              урока. Новая битва начинается на следующий урок.
+              урока, а проигравший теряет своё место при занятости. Новая битва
+              начинается на следующую перемену.
             </li>
           </ol>
           <div className={styles.checkbox_container}>

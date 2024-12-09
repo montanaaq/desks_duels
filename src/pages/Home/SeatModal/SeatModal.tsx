@@ -1,9 +1,9 @@
 // src/components/Home/SeatModal/SeatModal.tsx
 
-import { FC } from "react";
+import type { FC } from "react";
 import Modal from "../../../components/Modal/Modal";
-import { SeatType } from "../../../types/seat.types";
-import { userType } from "../../../types/user.types";
+import type { SeatType } from "../../../types/seat.types";
+import type { userType } from "../../../types/user.types";
 import styles from "./SeatModal.module.css";
 
 interface SeatModalProps {
@@ -26,6 +26,7 @@ const SeatModal: FC<SeatModalProps> = ({
   onOccupy,
 }) => {
   if (!seat) return null;
+  console.log(seat);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -37,12 +38,14 @@ const SeatModal: FC<SeatModalProps> = ({
           <p>Статус:</p>
           <p
             style={
-              seat.status === "dueled"
+              seat.status === "dueled" && seat.occupiedBy
                 ? { color: "var(--color-error)" }
                 : { color: "var(--color-success)" }
             }
           >
-            {seat.status == 'dueled' ? "Дуэль завершена" : "Доступно для дуэли"}
+            {seat.status == "dueled" && seat.occupiedBy
+              ? "Дуэль завершена"
+              : "Доступно для дуэли"}
           </p>
         </div>
         <p className={styles.occupied_info}>

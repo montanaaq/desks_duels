@@ -1,8 +1,8 @@
-import { Dispatch, MutableRefObject, SetStateAction } from "react";
+import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { io, Socket } from "socket.io-client";
 import { toast } from "sonner";
-import { DuelRequest } from "../pages/Home/Home";
-import { SeatType } from "../types/seat.types";
+import type { DuelRequest } from "../pages/Home/Home";
+import type { SeatType } from "../types/seat.types";
 import { url } from "./userService";
 
 const socket: Socket = io(url);
@@ -28,6 +28,19 @@ const initializeSocket = (
     showDuelRequestPopup(duelData);
   });
 
+  // Handle duel response events
+  socket.on("duelAccepted", (data: { duelId: number, challengerId: string, challengedId: string }) => {
+    console.log("Socket: Duel accepted", data);
+    // Dismiss the toast for both users
+    toast.dismiss(data.duelId);
+  });
+
+  socket.on("duelDeclined", (data: { duelId: number, challengerId: string, challengedId: string }) => {
+    console.log("Socket: Duel declined", data);
+    // Dismiss the toast for both users
+    toast.dismiss(data.duelId);
+  });
+
   socket.on("showDuelRoles", ({ roleMessage, request }) => {
     toast(roleMessage, { duration: 5000 });
 
@@ -46,6 +59,8 @@ const initializeSocket = (
   return () => {
     socket.off("seatUpdated");
     socket.off("duelRequest");
+    socket.off("duelAccepted");
+    socket.off("duelDeclined");
     socket.off("showDuelRoles");
     socket.off("duelCompleted");
     socket.disconnect();

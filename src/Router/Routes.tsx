@@ -1,6 +1,6 @@
 
 import App from '../App'
-import { ReactElement } from 'react'
+import type { ReactElement } from 'react'
 import CoinFlip from '../components/CoinFlip/CoinFlip'
 
 interface IRoute {
