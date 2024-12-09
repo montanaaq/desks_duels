@@ -61,8 +61,8 @@ a {
 
     .infoButton {
         position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
+        top: 1rem;
+        right: .7rem;
         color: var(--color-text);
         z-index: 10;
     }
