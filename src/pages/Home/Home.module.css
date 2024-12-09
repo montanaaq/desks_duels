@@ -46,6 +46,77 @@ a {
   margin-top: 10px;
 }
 
+/* Telegram Web View and iPhone 15 Optimization */
+@media (min-width: 393px) and (max-width: 430px) {
+    .home_wrapper {
+        min-height: calc(100vh - 50px); /* Adjusted for Telegram Web View header */
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 1rem;
+        overflow-x: hidden;
+    }
+
+    .infoButton {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        color: var(--color-text);
+        z-index: 10;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .title {
+        font-size: 1.8rem;
+        margin-top: 2rem;
+        text-align: center;
+        width: 100%;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+        margin: 0.75rem 0;
+        text-align: center;
+        width: 100%;
+    }
+
+    .gameStatus {
+        text-align: center;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Telegram Web View Specific Adjustments */
+@media (min-width: 393px) and (max-width: 430px) and (-webkit-min-device-pixel-ratio: 2) {
+    .home_wrapper {
+        min-height: calc(100vh - 50px); /* Adjusted for Telegram Web View header */
+        overflow-x: hidden;
+    }
+}
+
+/* Safe Area Support for iOS */
+@supports (padding-top: env(safe-area-inset-top)) {
+    .home_wrapper {
+        padding-top: calc(0.5rem + env(safe-area-inset-top));
+        padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+    }
+}
+
+/* Prevent overflow and ensure full width in Telegram Web View */
+body, html {
+    max-width: 100%;
+    overflow-x: hidden;
+}
 
 @media only screen and (max-width: 380px) and (max-width: 568px) {
   .home_wrapper {

@@ -261,3 +261,193 @@
         border-radius: 6px;
     }
 }
+
+@media (min-width: 2556px) {
+    .container {
+        max-width: 1600px;
+        padding: 4rem;
+    }
+
+    .title {
+        font-size: 4rem;
+        margin-bottom: 2rem;
+    }
+
+    .description {
+        font-size: 1.5rem;
+        line-height: 2;
+        margin-bottom: 3rem;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .features {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 3rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .feature {
+        padding: 2.5rem;
+        border-radius: 20px;
+    }
+
+    .featureIcon {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .featureTitle {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature p {
+        font-size: 1.2rem;
+    }
+
+    .linksContainer {
+        margin-top: 4rem;
+        gap: 1.5rem;
+    }
+
+    .link {
+        max-width: 400px;
+        height: 60px;
+        font-size: 1.3rem;
+        border-radius: 15px;
+    }
+}
+
+@media (min-width: 2556px) and (max-height: 1179px) {
+    .container {
+        justify-content: center;
+        align-items: center;
+    }
+
+    .content {
+        max-width: 1400px;
+        width: 90%;
+    }
+}
+
+@media (min-width: 393px) and (max-width: 430px) {
+    .container {
+        min-height: calc(100vh - 57px);
+        padding: 0.75rem;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .backButton {
+        top: 0.25rem;
+        left: 0.25rem;
+        z-index: 10;
+    }
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        padding: 0 1rem;
+    }
+
+    .title {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        text-align: center;
+        width: 100%;
+    }
+
+    .description {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        padding: 0 0.5rem;
+        max-width: 100%;
+    }
+
+    .features {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        width: 100%;
+        padding: 0;
+    }
+
+    .feature {
+        padding: 1rem;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+    }
+
+    .featureIcon {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .featureTitle {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .feature p {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .linksContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: center;
+        margin-top: 1.5rem;
+        width: 100%;
+        padding: 0 0.5rem;
+    }
+
+    .link {
+        width: 100%;
+        max-width: 280px;
+        height: 45px;
+        font-size: 0.95rem;
+        border-radius: 10px;
+    }
+}
+
+@media (min-width: 393px) and (max-width: 430px) and (-webkit-min-device-pixel-ratio: 2) {
+    .container {
+        min-height: calc(100vh - 50px); /* Adjusted for Telegram Web View header */
+        overflow-x: hidden;
+    }
+
+    .content {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+    .container {
+        padding-top: calc(0.5rem + env(safe-area-inset-top));
+        padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+    }
+}
+
+body, html {
+    max-width: 100%;
+    overflow-x: hidden;
+}

@@ -583,7 +583,7 @@ const Home: FC<HomeProps> = ({ user }) => {
           onSelect={handleSelectSeat}
           isModalOpen={!!selectedSeat}
         />
-        <Footer />
+        <Footer styles={{ marginTop: "auto" }} />
       </div>
 
       <SeatModal
