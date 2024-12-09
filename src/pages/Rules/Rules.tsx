@@ -1,6 +1,6 @@
 // pages/Rules/Rules.tsx
-import { useState } from "react";
 import type { FC } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, Toaster } from "sonner";
 import DesignCircles from "../../components/DesignCircles/DesignCircles";
@@ -66,8 +66,8 @@ const Rules: FC = () => {
               быстрой мини-игре. Побеждает тот, кому повезет!
             </li>
             <li>
-              <b>Результаты:</b> Победитель закрепляет за собой место до конца
-              урока, а проигравший теряет своё место при занятости. Новая битва
+              <b>Результаты:</b> Победитель закрепляет за место до конца
+              урока, а проигравший его теряет. Новая битва
               начинается на следующую перемену.
             </li>
           </ol>
@@ -89,7 +89,7 @@ const Rules: FC = () => {
             Далее
           </button>
         </div>
-        <Footer />
+        <Footer styles={{ marginTop: "auto" }} />
       </div>
     </DesignCircles>
   );

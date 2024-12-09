@@ -1,5 +1,5 @@
 .rules_wrapper {
-	min-height: 100vh;
+	min-height: calc(100vh - 57px);
 	width: 100%;
 	display: flex;
 	flex-direction: column;
@@ -43,7 +43,7 @@
     justify-content: center;
     align-items: center;
     gap: 8px;
-	margin-top: 30px;
+	margin-top: 15px;
 }
 .checkbox_container p {
     font-size: 10px;
@@ -137,6 +137,7 @@
 }
 .checkbox_wrapper_13 input[type='checkbox']:focus {
 	box-shadow: 0 0 0 var(--focus);
+	outline: none;
 }
 .checkbox_wrapper_13 input[type='checkbox']:not(.switch) {
 	width: 18px;
