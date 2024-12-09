@@ -18,6 +18,13 @@ a {
   position: relative;
 }
 
+.infoButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: var(--color-text);
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -26,7 +33,7 @@ a {
 
 .title {
   font-size: 24px;
-  margin-top: 50px;
+  margin-top: 40px;
 }
 
 .subtitle {

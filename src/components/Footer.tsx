@@ -12,7 +12,6 @@ const Footer: FC = () => {
         alignItems: "center",
         fontSize: "12px",
         opacity: "50%",
-        marginTop: "auto",
       }}
     >
       <Swords size={18} />

@@ -1,7 +1,9 @@
 // src/components/Home/Home.tsx
 
+import { Info } from "lucide-react";
 import type { FC } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast, Toaster } from "sonner";
 import DesignCircles from "../../components/DesignCircles/DesignCircles";
 import DuelRequestPopup from "../../components/DuelRequestPopup/DuelRequestPopup";
@@ -182,7 +184,7 @@ const Home: FC<HomeProps> = ({ user }) => {
   useEffect(() => {
     const handleDuelTimeout = async (event: Event) => {
       const customEvent = event as CustomEvent<DuelTimeoutEventDetail>;
-      const { duel } = customEvent.detail; // Удалил isWinner
+      const { duel } = customEvent.detail;
 
       try {
         // Проверяем, что текущий пользователь участвует в этой дуэли
@@ -558,6 +560,9 @@ const Home: FC<HomeProps> = ({ user }) => {
         closeButton={false}
       />
       <div className={styles.home_wrapper}>
+        <Link to={"/info"} className={styles.infoButton}>
+          <Info size={32} />
+        </Link>
         <div className={styles.container}>
           <p className={styles.title}>
             Привет, <b>{user.name}</b>!
