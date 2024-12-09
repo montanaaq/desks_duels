@@ -1,7 +1,11 @@
 import { Swords } from "lucide-react";
 import type { FC } from "react";
 
-const Footer: FC = () => {
+interface FooterProps {
+  styles?: React.CSSProperties;
+}
+
+const Footer: FC<FooterProps> = ({ styles }) => {
   return (
     <span
       style={{
@@ -12,6 +16,7 @@ const Footer: FC = () => {
         alignItems: "center",
         fontSize: "12px",
         opacity: "50%",
+        ...styles,
       }}
     >
       <Swords size={18} />

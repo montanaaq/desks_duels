@@ -72,7 +72,7 @@ const App: FC = () => {
               </a>
             </span>
           </p>
-          <Footer />
+          <Footer styles={{ marginTop: "auto" }} />
         </div>
         {/* Uncomment the following block if you want to manually enter Telegram ID for testing */}
         {/* <div>
