@@ -9,7 +9,7 @@ const Info = () => {
     <DesignCircles>
       <div className={styles.container}>
         <Link to={"/"} className={styles.backButton}>
-          <Undo2 size={32}/>
+          <Undo2 size={32} />
         </Link>
         <div className={styles.content}>
           <h1 className={styles.title}>Desks Duels</h1>
