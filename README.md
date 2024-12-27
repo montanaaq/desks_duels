@@ -1,51 +1,76 @@
-# React + TypeScript + Vite
+# Desks Duels
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+Welcome to **Desks Duels**! This Telegram WebApp is designed to let you compete for seats in your classroom by engaging in exciting challenges and duels. The main objective is to claim a seat before anyone else and defend it when challenged. Duels take place between the seat occupant (the first player) and a challenger (the second player), and the outcome is decided through a coin flip mini-game. The winner claims or retains the seat, while the loser must find another seat to occupy or challenge.
 
-Currently, two official plugins are available:
+## Current Status
+At this stage, **Desks Duels** focuses on establishing core functionalities and ensuring that the essential features work reliably. We are currently prioritizing functionality and seamless gameplay over design and interface styling.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Future Improvements
+In upcoming releases, we plan to enhance the user interface and experience by refining our design approach and possibly integrating more robust component libraries. Expect:
+- More polished visuals and styling.
+- Additional mini-games for duels.
+- Expanded administrative tools and user management features.
 
-## Expanding the ESLint configuration
+## Technology Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### Frontend
+- **React JS**  
+- **TypeScript**  
+- **Sonner**  
+- **Vite**  
+- **React Router**
 
-- Configure the top-level `parserOptions` property like this:
+### Backend
+- **Express JS**  
+- **Socket.io**  
+- **Sequelize**  
+- **SQLite3**
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+### Telegram Bot
+- **Python**  
+- **Aiogram3**  
+- **requests**  
+- **APScheduler**  
+- **Asyncio**
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Getting Started
+Follow these steps to set up **Desks Duels** locally:
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+1. **Clone the Repository**
+    ```bash
+    git clone https://github.com/your-username/desks-duels
+    ```
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
-# desks_duels
+2. **Navigate to the Project Directory**
+    ```bash
+    cd desks-duels
+    ```
+
+3. **Install Dependencies**
+    ```bash
+    npm install
+    ```
+
+4. **Run the Development Server**
+    ```bash
+    npm run dev
+    ```
+
+5. **Open Your Browser**
+    Visit [http://localhost:5137](http://localhost:5137) to experience **Desks Duels** in action.
+
+> **Note:** If you have a separate backend server or Telegram Bot service, please refer to their respective instructions for setup and configuration.
+
+## Contributing
+We welcome contributions to help make **Desks Duels** even better. To contribute:
+
+1. **Fork the repository** on GitHub.
+2. **Create a new branch** for your feature or bug fix.
+3. **Make your changes** and test them thoroughly.
+4. **Submit a pull request** with a clear description of the modifications you have made.
+
+Your feedback and ideas are always appreciated!
+
+## License
+This project is licensed under the [MIT License](LICENSE). Feel free to use, modify, and distribute this software as permitted under the license.
