@@ -305,6 +305,7 @@ const Home: FC<HomeProps> = ({ user }) => {
                 isInitiator={true}
                 handleDeclineDuel={handleDeclineDuel}
                 handleAcceptDuel={handleAcceptDuel}
+                isDeclined={false}
               />
             ),
             {
@@ -357,6 +358,7 @@ const Home: FC<HomeProps> = ({ user }) => {
           isInitiator={false}
           handleDeclineDuel={handleDeclineDuel}
           handleAcceptDuel={handleAcceptDuel}
+          isDeclined={false}
         />
       ),
       {
@@ -394,13 +396,21 @@ const Home: FC<HomeProps> = ({ user }) => {
 
   const handleDeclineDuel = (
     request: DuelRequest,
-    isTimeout = false,
-    initialTime = 60
+    isTimeout = false
   ) => {
     const handleDecline = async () => {
       try {
         // Send decline request to backend с параметром isTimeout
         await declineDuel(request.duelId, isTimeout);
+        // Broadcast the decline event
+        socket.emit("duelDeclined", {
+          duelId: request.duelId,
+          challengerId: request.challengerId,
+          challengedId: request.challengedId,
+        });
+
+        // Close own toast
+        toast.dismiss(request.duelId);
 
         // Emit duelDeclined to close toasts for both users
         socket.emit("duelDeclined", {
@@ -431,35 +441,23 @@ const Home: FC<HomeProps> = ({ user }) => {
     };
 
     if (!isTimeout) {
-      let remainingTime = initialTime;
-      let toastId = toast(
-        `Вы автоматически проиграете в дуэли, при отказе. Оставшееся время: ${remainingTime} секунд`,
+      toast.custom(
+        (t: any) => (
+          <DuelRequestPopup
+            request={request}
+            onClose={() => toast.dismiss(t.id)}
+            isInitiator={null}
+            handleDeclineDuel={handleDeclineDuel}
+            handleAcceptDuel={handleAcceptDuel}
+            isDeclined={true}
+          />
+        ),
         {
-          action: {
-            label: "Принять",
-            onClick: () => handleAcceptDuel(request),
-          },
+          duration: 60000,
+          id: request.duelId,
+          dismissible: false,
         }
       );
-
-      const intervalId = setInterval(() => {
-        remainingTime -= 1;
-        if (remainingTime > 0) {
-          toast.dismiss(toastId);
-          toastId = toast(
-            `Вы автоматически проиграете в дуэли, при отказе. Оставшееся время: ${remainingTime} секунд`,
-            {
-              action: {
-                label: "Принять",
-                onClick: () => handleAcceptDuel(request),
-              },
-            }
-          );
-        } else {
-          clearInterval(intervalId);
-          handleDecline();
-        }
-      }, 1000);
     } else {
       handleDecline();
     }

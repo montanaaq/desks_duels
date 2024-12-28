@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
 import type { FC } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { DuelRequest } from "../../pages/Home/Home";
 import { socket } from "../../services/socketService";
@@ -8,19 +8,21 @@ import styles from "./DuelRequestPopup.module.css";
 const DuelRequestPopup: FC<{
   request: DuelRequest;
   onClose: () => void;
-  isInitiator: boolean;
+  isInitiator: boolean | null;
   handleDeclineDuel: (
     request: DuelRequest,
     isTimeout?: boolean,
     initialTime?: number
   ) => void;
   handleAcceptDuel: (request: DuelRequest) => void;
+  isDeclined: boolean;
 }> = ({
   request,
   onClose,
   isInitiator,
   handleDeclineDuel,
   handleAcceptDuel,
+  isDeclined,
 }) => {
   const [remainingTime, setRemainingTime] = useState<number>(60);
   const intervalRef = useRef<NodeJS.Timeout | null | undefined>(null);
@@ -33,9 +35,10 @@ const DuelRequestPopup: FC<{
         if (prevTime <= 1 && !isHandlingTimeout.current) {
           // Time expired, handle the timeout
           isHandlingTimeout.current = true;
+
           // Use setTimeout to avoid state updates during render
           setTimeout(() => {
-            handleDeclineDuel(request, true, 0); // true indicates timeout
+            handleDeclineDuel(request, isHandlingTimeout.current, 0); // true indicates timeout
             if (intervalRef.current) {
               clearInterval(intervalRef.current);
             }
@@ -127,6 +130,26 @@ const DuelRequestPopup: FC<{
 
   return (
     <div>
+      {isDeclined && (
+        <div className={styles.duel_request_pop_up}>
+          <p>
+            Пользователь <b>{request.challengerName}</b> вызвал вас на дуэль!
+            Если вы не примете дуэль в течение 60 секунд,{" "}
+            <b>вы автоматически проиграете</b>.
+          </p>
+          <p className={styles.remainingTime}>
+            Оставшееся время: {remainingTime} секунд
+          </p>
+          <div>
+            <button className={styles.button_decline} onClick={handleDecline}>
+              Отказаться
+            </button>
+            <button className={styles.button_accept} onClick={handleAccept}>
+              Принять
+            </button>
+          </div>
+        </div>
+      )}
       {isInitiator ? (
         <div className={styles.duel_request_pop_up}>
           <p className={styles.is_initiator}>

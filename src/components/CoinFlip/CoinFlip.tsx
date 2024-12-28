@@ -34,7 +34,7 @@ const CoinFlip: FC = () => {
       toast.error("Параметры дуэли не найдены! Попробуйте позже.");
       setTimeout(() => {
         navigate("/");
-      }, 3000);
+      }, 5000);
       return;
     }
 
@@ -79,7 +79,7 @@ const CoinFlip: FC = () => {
             toast.success(`🏆 ${winnerName} выиграл дуэль!`, {
               duration: 5000,
               position: "top-center",
-            });
+          });
 
             // Перенаправляем пользователей на страницу выбора места через 3 секунды
             setTimeout(() => {
@@ -181,7 +181,7 @@ const CoinFlip: FC = () => {
       // Fallback navigation in case of error
       setTimeout(() => {
         navigate("/");
-      }, 3000);
+      }, 5000);
     }
   };
 
@@ -214,7 +214,7 @@ const CoinFlip: FC = () => {
             </h2>
           )}
         </div>
-        <Footer />
+        <Footer styles={{marginTop: 'auto'}} />
       </div>
     </DesignCircles>
   );

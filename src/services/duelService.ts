@@ -24,51 +24,6 @@ export const requestDuel = async (player1: string, player2: string, seatId: numb
 
         const duelResponse = await response.json();
 
-        // Set up a timeout to check duel status after 60 seconds
-        setTimeout(async () => {
-            try {
-                const timedOutDuels = await checkTimedOutDuels(player1);
-                
-                if (timedOutDuels && timedOutDuels.length > 0) {
-                    const duel = timedOutDuels[0];
-                    
-                    // Get all duels for the current seat to clear previous occupation
-                    const currentSeatDuels = await getDuelsBySeat(seatId);
-                    const previousDuel = currentSeatDuels.find(d => 
-                        (d.player1 === player1 || d.player2 === player1) && 
-                        d.id !== duel.id && 
-                        (d.status === 'accepted' || d.status === 'completed')
-                    );
-
-                    // If there's a previous duel, decline it and clean up
-                    if (previousDuel) {
-                        await declineDuel(previousDuel.id, true);
-                        
-                        // Dispatch a cleanup event for the UI
-                        const cleanupEvent = new CustomEvent('duelCleanup', {
-                            detail: {
-                                duelId: previousDuel.id,
-                                seatId: previousDuel.seatId
-                            }
-                        });
-                        window.dispatchEvent(cleanupEvent);
-                    }
-                    
-                    // Dispatch a custom event to handle duel timeout
-                    const event = new CustomEvent('duelTimeout', { 
-                        detail: { 
-                            duel, 
-                            isWinner: duel.player1 === player1,
-                            clearedDuelId: previousDuel?.id
-                        } 
-                    });
-                    window.dispatchEvent(event);
-                }
-            } catch (error) {
-                console.error('Error checking timed-out duels:', error);
-            }
-        }, 60000); // 60 seconds
-
         return duelResponse;
     } catch (error: any) {
         throw new Error(error.message || 'Unknown error');

@@ -1,10 +1,10 @@
+import Home from "@/pages/Home/Home.tsx";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
 import DesignCircles from "./components/DesignCircles/DesignCircles.tsx";
 import Footer from "./components/Footer.tsx";
 import Logo from "./components/Logo.tsx";
 import { useTelegram } from "./hooks/useTelegram.ts";
-import Home from "./pages/Home/Home.tsx";
 import Rules from "./pages/Rules/Rules.tsx";
 import { findUserById } from "./services/userService.ts";
 import type { userType } from "./types/user.types.ts";
@@ -12,6 +12,7 @@ import type { userType } from "./types/user.types.ts";
 const App: FC = () => {
   const [user, setUser] = useState<userType | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  // const [telegramId, setTelegramId] = useState<number | null>(null);
   const { tg } = useTelegram();
   const telegramId = tg?.initDataUnsafe?.user?.id;
 
@@ -41,7 +42,7 @@ const App: FC = () => {
           return;
         }
 
-        const user = await getUserByTelegramId(telegramId);
+        const user = await getUserByTelegramId(String(telegramId));
         if (user) {
           setUser(user);
         }
@@ -84,6 +85,15 @@ const App: FC = () => {
           </p>
           <Footer styles={{ marginTop: "auto" }} />
         </div>
+        {/* Uncomment the following block if you want to manually enter Telegram ID for testing */}
+        {/* <div>
+          <input
+            type="number"
+            value={telegramId ?? ""}
+            onChange={(e) => setTelegramId(Number(e.target.value))}
+            placeholder="Enter Telegram ID"
+          />
+        </div> */}
       </DesignCircles>
     );
   }
