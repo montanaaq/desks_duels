@@ -8,6 +8,7 @@ import { toast, Toaster } from "sonner";
 import DesignCircles from "../../components/DesignCircles/DesignCircles";
 import DuelRequestPopup from "../../components/DuelRequestPopup/DuelRequestPopup";
 import Footer from "../../components/Footer";
+import SkeletonLoader from "../../components/SkeletonLoader/SkeletonLoader";
 import useSchoolTimer from "../../hooks/useSchoolTimer";
 import {
   declineDuel,
@@ -35,6 +36,7 @@ export interface DuelRequest {
   challengedId: string;
   challengedName: string;
   seatId: number;
+  isConfirmed?: boolean;
 }
 
 interface DuelTimeoutEventDetail {
@@ -54,6 +56,7 @@ const Home: FC<HomeProps> = ({ user }) => {
   const duelRequestRef = useRef<DuelRequest | null>(null);
   const [shouldRerender, setShouldRerender] = useState(false);
   const rerenderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   duelRequest;
 
@@ -69,11 +72,14 @@ const Home: FC<HomeProps> = ({ user }) => {
   useEffect(() => {
     const fetchInitialDesks = async () => {
       try {
+        setIsLoading(true);
         const data = await getDesks();
         setDesks(data);
       } catch (error) {
         console.error("Error fetching desks:", error);
         toast.error("Ошибка загрузки мест. Попробуйте позже.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -105,62 +111,67 @@ const Home: FC<HomeProps> = ({ user }) => {
     socket.on(
       "duelDeclined",
       async (data: {
-        duel: {
-          seatId: number;
-          player1: string;
-          player2: string;
-          isAutoDeclined: boolean;
-        };
+        duelId: number;
+        challengerId: string;
+        challengedId: string;
+        seatId: number;
+        isAutoDeclined?: boolean;
       }) => {
-        const { duel } = data;
-
         try {
+          // Закрываем уведомление о дуэли
+          toast.dismiss(data.duelId);
+
           // Проверяем, что текущий пользователь участвует в этой дуэли
           const isParticipant =
-            user.telegramId === duel.player1 ||
-            user.telegramId === duel.player2;
+            user.telegramId === data.challengerId ||
+            user.telegramId === data.challengedId;
 
           if (!isParticipant) {
             return;
           }
 
-          const [seat, player1Name] = await Promise.all([
-            getSeatById(duel.seatId),
-            findUserById(duel.player1),
+          // Получаем актуальную информацию о месте и пользователях
+          const [seat, challenger] = await Promise.all([
+            getSeatById(data.seatId),
+            findUserById(data.challengerId),
           ]);
 
-          // Если дуэль автоматически отклонена (по истечении времени)
-          if (duel.isAutoDeclined) {
-            if (user.telegramId === duel.player1) {
-              // Для инициатора дуэли
+          // Показываем уведомления в зависимости от типа отклонения
+          if (data.isAutoDeclined) {
+            if (user.telegramId === data.challengerId) {
               toast.success(
-                `Вы заняли место №${seat.id}, так как оппонент не ответил на вызов.`,
+                `Вы автоматически заняли место №${seat.id}, так как оппонент не ответил на вызов.`,
                 { duration: 5000 }
               );
             } else {
-              // Для оппонента
               toast.info(
-                `Место #${seat.id} занято ${player1Name.user?.name}, так как вы не ответили на вызов.`,
+                `Вы не ответили вовремя. Место №${seat.id} автоматически перешло к ${challenger.user?.name}.`,
                 { duration: 5000 }
               );
             }
           } else {
-            // Для обычного отклонения
-            if (user.telegramId === duel.player1) {
-              toast.error(
-                `Ваш вызов на дуэль за место №${seat.id} был отклонен.`,
+            if (user.telegramId === data.challengerId) {
+              toast.info(
+                `${
+                  seat.id === seat.id ? "Ваш оппонент" : "Пользователь"
+                } отклонил вызов на дуэль. Место №${seat.id} переходит к вам.`,
                 { duration: 5000 }
               );
             } else {
-              toast.success(
-                `Вы отклонили вызов на дуэль за место №${seat.id}.`,
+              toast.info(
+                `Вы отклонили дуэль. Место №${seat.id} переходит к ${challenger.user?.name}.`,
                 { duration: 5000 }
               );
             }
           }
 
-          // Обновляем состояние мест
-          setShouldRerender((prev) => !prev);
+          // Обновляем состояние мест на клиенте
+          const updatedDesks = await getDesks();
+          setDesks(updatedDesks);
+
+          // Очищаем состояние дуэли
+          duelRequestRef.current = null;
+          setDuelRequest(null);
         } catch (error) {
           console.error("Ошибка при обработке отклонения дуэли:", error);
           toast.error("Произошла ошибка при обработке отклонения дуэли");
@@ -201,18 +212,10 @@ const Home: FC<HomeProps> = ({ user }) => {
 
         // Логика для инициатора дуэли (победителя по таймауту)
         if (user.telegramId === duel.player1) {
-          try {
-            await takeSeat(user.telegramId, seat.id);
-            toast.success(
-              `Вы заняли место №${seat.id}, так как оппонент не ответил на вызов.`,
-              { duration: 5000 }
-            );
-          } catch (error) {
-            toast.error(
-              `Не удалось занять место №${seat.id}. Возможно, оно уже занято.`,
-              { duration: 5000 }
-            );
-          }
+          toast.success(
+            `Вы заняли место №${seat.id}, так как оппонент не ответил на вызов.`,
+            { duration: 5000 }
+          );
         }
         // Логика для оппонента
         else {
@@ -296,6 +299,7 @@ const Home: FC<HomeProps> = ({ user }) => {
             challengedName: occupiedByUser?.name || "Соперник",
             seatId: selectedSeat.id,
           };
+
           // show a toast with the duel request to initiator
           toast.custom(
             (t: any) => (
@@ -394,57 +398,17 @@ const Home: FC<HomeProps> = ({ user }) => {
     }
   };
 
-  const handleDeclineDuel = (
+  const handleDeclineDuel = async (
     request: DuelRequest,
-    isTimeout = false
+    isTimeout: boolean = false
   ) => {
-    const handleDecline = async () => {
-      try {
-        // Send decline request to backend с параметром isTimeout
-        await declineDuel(request.duelId, isTimeout);
-        // Broadcast the decline event
-        socket.emit("duelDeclined", {
-          duelId: request.duelId,
-          challengerId: request.challengerId,
-          challengedId: request.challengedId,
-        });
-
-        // Close own toast
-        toast.dismiss(request.duelId);
-
-        // Emit duelDeclined to close toasts for both users
-        socket.emit("duelDeclined", {
-          duelId: request.duelId,
-        });
-
-        if (isTimeout) {
-          toast.info(
-            `Время истекло. ${request.challengerName} занимает место.`,
-            {
-              duration: 5000,
-            }
-          );
-        } else {
-          toast.info(`Вы отклонили дуэль с ${request.challengerName}.`, {
-            duration: 5000,
-          });
-        }
-      } catch (error: any) {
-        toast.error(error.message || "Ошибка при отклонении дуэли", {
-          closeButton: true,
-          duration: 3000,
-        });
-      } finally {
-        duelRequestRef.current = null;
-        setDuelRequest(null);
-      }
-    };
-
-    if (!isTimeout) {
+    // Если это не таймаут и это первое нажатие на "Отклонить"
+    if (!isTimeout && !request.isConfirmed) {
+      // Показываем подтверждение отклонения
       toast.custom(
         (t: any) => (
           <DuelRequestPopup
-            request={request}
+            request={{ ...request, isConfirmed: true }}
             onClose={() => toast.dismiss(t.id)}
             isInitiator={null}
             handleDeclineDuel={handleDeclineDuel}
@@ -458,8 +422,65 @@ const Home: FC<HomeProps> = ({ user }) => {
           dismissible: false,
         }
       );
-    } else {
-      handleDecline();
+      return;
+    }
+
+    try {
+      // Отправляем запрос на отклонение дуэли на бэкенд
+      const response = await declineDuel(request.duelId, isTimeout);
+      console.log("Backend response for decline:", response);
+
+      // Закрываем уведомление о дуэли
+      toast.dismiss(request.duelId);
+
+      // Отправляем событие отклонения всем участникам
+      socket.emit("duelDeclined", {
+        duelId: request.duelId,
+        challengerId: request.challengerId,
+        challengedId: request.challengedId,
+        seatId: request.seatId,
+        isAutoDeclined: isTimeout,
+      });
+
+      // Показываем уведомления
+      if (isTimeout) {
+        if (user.telegramId === request.challengerId) {
+          toast.success(
+            `Вы заняли место №${request.seatId}, так как оппонент не ответил на вызов.`,
+            { duration: 5000 }
+          );
+        } else {
+          toast.info(
+            `Время истекло. ${request.challengerName} занимает место №${request.seatId}.`,
+            { duration: 5000 }
+          );
+        }
+      } else {
+        if (user.telegramId === request.challengerId) {
+          toast.info(
+            `Ваш вызов на дуэль за место №${request.seatId} был отклонен.`,
+            { duration: 5000 }
+          );
+        } else {
+          toast.info(
+            `Вы отклонили дуэль. Место №${request.seatId} переходит к инициатору.`,
+            { duration: 5000 }
+          );
+        }
+      }
+
+      // Обновляем состояние мест
+      const updatedDesks = await getDesks();
+      setDesks(updatedDesks);
+
+      // Очищаем состояние дуэли
+      duelRequestRef.current = null;
+      setDuelRequest(null);
+    } catch (error: any) {
+      console.error("Ошибка при отклонении дуэли:", error);
+      toast.error(error.message || "Ошибка при отклонении дуэли", {
+        duration: 3000,
+      });
     }
   };
 
@@ -561,26 +582,32 @@ const Home: FC<HomeProps> = ({ user }) => {
         <Link to={"/info"} className={styles.infoButton}>
           <Info size={32} />
         </Link>
-        <div className={styles.container}>
-          <p className={styles.title}>
-            Привет, <b>{user.name}</b>!
-          </p>
-          <p className={styles.subtitle}>До начала</p>
-          <Timer time={time} isActive={isGameActive} />
-          {isGameActive && (
-            <p className={styles.gameStatus}>
-              Игра активна!
-              <br />
-              Быстрее займи своё место!
-            </p>
-          )}
-        </div>
-        <DeskContainer
-          key={shouldRerender ? "rerender" : "initial"}
-          desks={desks}
-          onSelect={handleSelectSeat}
-          isModalOpen={!!selectedSeat}
-        />
+        {isLoading ? (
+          <SkeletonLoader />
+        ) : (
+          <>
+            <div className={styles.container}>
+              <p className={styles.title}>
+                Привет, <b>{user.name}</b>!
+              </p>
+              <p className={styles.subtitle}>До начала</p>
+              <Timer time={time} isActive={isGameActive} />
+              {isGameActive && (
+                <p className={styles.gameStatus}>
+                  Игра активна!
+                  <br />
+                  Быстрее займи своё место!
+                </p>
+              )}
+            </div>
+            <DeskContainer
+              key={shouldRerender ? "rerender" : "initial"}
+              desks={desks}
+              onSelect={handleSelectSeat}
+              isModalOpen={!!selectedSeat}
+            />
+          </>
+        )}
         <Footer styles={{ marginTop: "10px" }} />
       </div>
 

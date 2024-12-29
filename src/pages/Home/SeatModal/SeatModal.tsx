@@ -2,6 +2,7 @@
 
 import type { FC } from "react";
 import Modal from "../../../components/Modal/Modal";
+import InlineSkeletonLoader from "../../../components/SkeletonLoader/InlineSkeletonLoader";
 import type { SeatType } from "../../../types/seat.types";
 import type { userType } from "../../../types/user.types";
 import styles from "./SeatModal.module.css";
@@ -50,7 +51,9 @@ const SeatModal: FC<SeatModalProps> = ({
         </div>
         <p className={styles.occupied_info}>
           Занято:{" "}
-          {seat.occupiedBy ? occupiedByUser?.name ?? "Загрузка..." : "Нет"}
+          {seat.occupiedBy
+            ? occupiedByUser?.name ?? <InlineSkeletonLoader />
+            : "Нет"}
         </p>
         {seat.status !== "dueled" &&
           user.telegramId !== seat.occupiedBy &&

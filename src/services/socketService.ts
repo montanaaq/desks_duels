@@ -1,9 +1,9 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { io, Socket } from "socket.io-client";
 import { toast } from "sonner";
+import { url } from "../config";
 import type { DuelRequest } from "../pages/Home/Home";
 import type { SeatType } from "../types/seat.types";
-import { url } from "./userService";
 
 const socket: Socket = io(url);
 

@@ -1,5 +1,5 @@
 // services/userService.ts
-import { url } from "./userService";
+import { url } from "../config";
 
 export const handleAcceptRules = async (telegramId: number, navigate: (path: string) => void) => {
 	try {

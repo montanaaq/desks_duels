@@ -1,15 +1,17 @@
 // pages/CoinFlip/CoinFlip.tsx
 
-import { useEffect, useState } from "react";
 import type { FC } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import io from "socket.io-client";
 import { toast, Toaster } from "sonner";
 import DesignCircles from "../../components/DesignCircles/DesignCircles";
 import Footer from "../../components/Footer";
 import Logo from "../../components/Logo";
+import CoinFlipSkeletonLoader from "../../components/SkeletonLoader/CoinFlipSkeletonLoader";
+import { url } from "../../config";
 import { completeDuel } from "../../services/duelService";
-import { findUserById, setDuelingFlag, url } from "../../services/userService";
+import { findUserById, setDuelingFlag } from "../../services/userService";
 import styles from "./CoinFlip.module.css";
 
 const socket = io(url);
@@ -28,6 +30,7 @@ const CoinFlip: FC = () => {
   const [winnerName, setWinnerName] = useState<string | null>(null);
   const [challengedName, setChallengedName] = useState<string | null>(null);
   const [challengerName, setChallengerName] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (!challengerId || !challengedId || !duelId) {
@@ -79,7 +82,7 @@ const CoinFlip: FC = () => {
             toast.success(`🏆 ${winnerName} выиграл дуэль!`, {
               duration: 5000,
               position: "top-center",
-          });
+            });
 
             // Перенаправляем пользователей на страницу выбора места через 3 секунды
             setTimeout(() => {
@@ -131,40 +134,40 @@ const CoinFlip: FC = () => {
     };
   }, [challengerId, challengedId, duelId, navigate]);
 
-  /**
-   * Функция для запуска подбрасывания монеты.
-   */
   const startCoinFlip = async () => {
     if (!challengerId || !challengedId || !duelId) return;
 
     setFlipping(true);
+    setIsLoading(true);
 
     try {
-      setChallengedName(await findUserById(challengedId).then((user) => user.user?.name));
-      setChallengerName(await findUserById(challengerId).then((user) => user.user?.name));
+      const [challengedUser, challengerUser] = await Promise.all([
+        findUserById(challengedId),
+        findUserById(challengerId),
+      ]);
+
+      setChallengedName(challengedUser.user?.name);
+      setChallengerName(challengerUser.user?.name);
+
       const response = await completeDuel(Number(duelId));
 
-      // Null check for response and duel
       if (response?.duel) {
         setFlipping(false);
-
-        // Set coin flip result from backend
         setResult(response.duel.coinFlipResult);
 
-        // Safely set winner name
         const winnerUser = await findUserById(response.duel.winner);
         const winnerName = winnerUser.user?.name;
         setWinnerName(winnerName);
-        // Показываем информацию о победителе
+
         toast.info(`🏆 ${winnerName} выиграл дуэль!`, {
           duration: 5000,
         });
 
-        // Emit socket event with duel result
         socket.emit("duelResult", {
           duelId: parseInt(duelId),
           result: response.duel,
         });
+
         setTimeout(() => {
           navigate("/");
         }, 5000);
@@ -178,17 +181,21 @@ const CoinFlip: FC = () => {
         position: "top-center",
       });
 
-      // Fallback navigation in case of error
       setTimeout(() => {
         navigate("/");
       }, 5000);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    // Запускаем подбрасывание монеты сразу при загрузке страницы
     startCoinFlip();
   }, []);
+
+  if (isLoading || !challengerName || !challengedName) {
+    return <CoinFlipSkeletonLoader />;
+  }
 
   return (
     <DesignCircles>
@@ -214,7 +221,7 @@ const CoinFlip: FC = () => {
             </h2>
           )}
         </div>
-        <Footer styles={{marginTop: 'auto'}} />
+        <Footer styles={{ marginTop: "auto" }} />
       </div>
     </DesignCircles>
   );

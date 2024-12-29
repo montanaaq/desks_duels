@@ -1,5 +1,5 @@
+import { url } from "../config";
 import type { SeatType } from "../types/seat.types";
-import { url } from "./userService";
 
 export const getSeatById = async (seatId: number): Promise<SeatType> => {
     try {

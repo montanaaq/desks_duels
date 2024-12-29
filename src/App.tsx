@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import DesignCircles from "./components/DesignCircles/DesignCircles.tsx";
 import Footer from "./components/Footer.tsx";
 import Logo from "./components/Logo.tsx";
+import SkeletonLoader from "./components/SkeletonLoader/SkeletonLoader";
 import { useTelegram } from "./hooks/useTelegram.ts";
 import Rules from "./pages/Rules/Rules.tsx";
 import { findUserById } from "./services/userService.ts";
@@ -55,7 +56,7 @@ const App: FC = () => {
     checkUser();
   }, [telegramId, tg]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <SkeletonLoader />;
 
   if (!tg || !telegramId || !user) {
     return (

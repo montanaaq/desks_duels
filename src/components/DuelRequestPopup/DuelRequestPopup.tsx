@@ -9,11 +9,7 @@ const DuelRequestPopup: FC<{
   request: DuelRequest;
   onClose: () => void;
   isInitiator: boolean | null;
-  handleDeclineDuel: (
-    request: DuelRequest,
-    isTimeout?: boolean,
-    initialTime?: number
-  ) => void;
+  handleDeclineDuel: (request: DuelRequest, isTimeout?: boolean) => void;
   handleAcceptDuel: (request: DuelRequest) => void;
   isDeclined: boolean;
 }> = ({
@@ -33,129 +29,124 @@ const DuelRequestPopup: FC<{
     intervalRef.current = setInterval(() => {
       setRemainingTime((prevTime) => {
         if (prevTime <= 1 && !isHandlingTimeout.current) {
-          // Time expired, handle the timeout
           isHandlingTimeout.current = true;
-
-          // Use setTimeout to avoid state updates during render
-          setTimeout(() => {
-            handleDeclineDuel(request, isHandlingTimeout.current, 0); // true indicates timeout
-            if (intervalRef.current) {
-              clearInterval(intervalRef.current);
-            }
-            onClose();
-          }, 0);
+          handleDeclineDuel(request, true);
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+          }
+          onClose();
           return 0;
         }
         return prevTime - 1;
       });
     }, 1000);
 
-    // Listen for duel response events
+    // Listen for socket events
     const handleDuelAccepted = (data: { duelId: number }) => {
       if (data.duelId === request.duelId) {
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
         }
-        // Use setTimeout to avoid state updates during render
-        setTimeout(() => {
-          toast.dismiss(data.duelId);
-          onClose();
-        }, 0);
+        toast.dismiss(request.duelId);
+        onClose();
       }
     };
 
-    const handleDuelDeclined = (data: { duelId: number }) => {
+    const handleDuelDeclined = (data: {
+      duelId: number;
+      challengerId?: string;
+      challengedId?: string;
+      seatId?: number;
+    }) => {
       if (data.duelId === request.duelId) {
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
         }
-        // Use setTimeout to avoid state updates during render
-        setTimeout(() => {
-          toast.dismiss(data.duelId);
-          onClose();
-        }, 0);
+        toast.dismiss(request.duelId);
+        onClose();
+      }
+    };
+
+    const handleDuelTimeout = (data: {
+      duel: {
+        seatId: number;
+        player1: string;
+        player2: string;
+        isTimeout: boolean;
+      };
+    }) => {
+      if (
+        data.duel.seatId === request.seatId &&
+        (data.duel.player1 === request.challengerId ||
+          data.duel.player2 === request.challengedId)
+      ) {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+        toast.dismiss(request.duelId);
+        onClose();
       }
     };
 
     socket.on("duelAccepted", handleDuelAccepted);
     socket.on("duelDeclined", handleDuelDeclined);
+    socket.on("duelTimeout", handleDuelTimeout);
 
-    // Cleanup interval and socket listeners on unmount
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
       socket.off("duelAccepted", handleDuelAccepted);
       socket.off("duelDeclined", handleDuelDeclined);
+      socket.off("duelTimeout", handleDuelTimeout);
     };
-  }, [onClose, request, handleDeclineDuel]);
+  }, [request, handleDeclineDuel, onClose]);
 
-  const handleDecline = () => {
-    console.log("DuelRequestPopup: Declining duel", request.duelId);
-    handleDeclineDuel(request, false, remainingTime);
-
-    // Broadcast the decline event
-    socket.emit("duelDeclined", {
-      duelId: request.duelId,
-      challengerId: request.challengerId,
-      challengedId: request.challengedId,
-    });
-
-    // Close own toast
-    toast.dismiss(request.duelId);
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+  const handleDecline = async () => {
+    try {
+      // Вызываем handleDeclineDuel из родительского компонента
+      await handleDeclineDuel(request, false);
+      console.log("Duel declined:", request);
+    } catch (error) {
+      console.error("Ошибка при отклонении дуэли:", error);
+      toast.error("Не удалось отклонить дуэль");
     }
-    onClose();
   };
 
   const handleAccept = () => {
-    console.log("DuelRequestPopup: Accepting duel", request.duelId);
     handleAcceptDuel(request);
-
-    // Broadcast the accept event
-    socket.emit("duelAccepted", {
+    socket.emit("acceptDuel", {
       duelId: request.duelId,
       challengerId: request.challengerId,
       challengedId: request.challengedId,
+      seatId: request.seatId,
     });
-
-    // Close own toast
-    toast.dismiss(request.duelId);
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-    onClose();
   };
 
   return (
     <div>
-      {isDeclined && (
+      {isDeclined ? (
         <div className={styles.duel_request_pop_up}>
           <p>
-            Пользователь <b>{request.challengerName}</b> вызвал вас на дуэль!
-            Если вы не примете дуэль в течение 60 секунд,{" "}
-            <b>вы автоматически проиграете</b>.
+            Вы уверены, что хотите отклонить дуэль? Место перейдет к{" "}
+            <b>{request.challengerName}</b>.
           </p>
-          <p className={styles.remainingTime}>
-            Оставшееся время: {remainingTime} секунд
-          </p>
+          <p>Оставшееся время: {remainingTime} секунд</p>
           <div>
-            <button className={styles.button_decline} onClick={handleDecline}>
-              Отказаться
+            <button className={styles.button_decline} onClick={handleAccept}>
+              Отмена
             </button>
-            <button className={styles.button_accept} onClick={handleAccept}>
-              Принять
+            <button className={styles.button_accept} onClick={handleDecline}>
+              Подтвердить
             </button>
           </div>
         </div>
-      )}
-      {isInitiator ? (
+      ) : isInitiator ? (
         <div className={styles.duel_request_pop_up}>
           <p className={styles.is_initiator}>
             Вы вызвали игрока <b>{request.challengedName}</b> на дуэль. Если
             игрок не примет дуэль в течение 60 секунд,{" "}
-            <b>вы автоматически выйграете</b>.
+            <b>вы автоматически выиграете</b>.
           </p>
           <p>Оставшееся время: {remainingTime} секунд</p>
         </div>

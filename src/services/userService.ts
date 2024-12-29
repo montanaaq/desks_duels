@@ -1,9 +1,5 @@
 // services/userService.ts
-
-const isLocal = false;
-export const url = isLocal
-  ? import.meta.env.VITE_LOCAL_URL 
-  : import.meta.env.VITE_PROD_URL;
+import { url } from "../config";
 
 export const getUsers = async () => {
     try {
@@ -27,12 +23,12 @@ export const findUserById = async (telegramId: string) => {
             body: JSON.stringify({ telegramId: telegramId }),
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+        if (response.status === 404) {
+            return { user: null, message: 'Пользователь не найден! Попробуйте зарегистрироваться с помощью /start' };
         }
 
-        if (response.status === 404) {
-            return 'Пользователь не найден! Попробуйте зарегистрироваться с помощью /start';
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         return response.json();

@@ -11,12 +11,15 @@
 .duel_request_pop_up p {
   font-size: 14px;
 }
+
 .is_initiator {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
+
 .remainingTime {
   margin-top: 5px;
 }
+
 .duel_request_pop_up div {
   margin-top: 10px;
   display: flex;

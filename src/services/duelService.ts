@@ -1,6 +1,6 @@
 // services/duelService.ts
+import { url } from "../config";
 import type { duelType } from "../types/duel.types";
-import { url } from "./userService";
 
 type DuelResponse = {
     message: string;
