@@ -1,19 +1,30 @@
 // pages/Rules/Rules.tsx
 import type { FC } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, Toaster } from "sonner";
 import DesignCircles from "../../components/DesignCircles/DesignCircles";
 import Footer from "../../components/Footer";
 import Logo from "../../components/Logo";
+import RulesSkeletonLoader from "../../components/SkeletonLoader/RulesSkeletonLoader";
 import { useTelegram } from "../../hooks/useTelegram";
 import { handleAcceptRules } from "../../services/rulesService";
 import styles from "./Rules.module.css";
 
 const Rules: FC = () => {
   const [isChecked, setIsChecked] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { tg } = useTelegram();
+
+  useEffect(() => {
+    // Имитация загрузки данных
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
@@ -21,8 +32,8 @@ const Rules: FC = () => {
 
   const handleNextClick = () => {
     const telegramId = tg.initDataUnsafe?.user.id;
-    // const telegramId = 2;
     if (isChecked) {
+      setIsLoading(true);
       handleAcceptRules(telegramId, navigate).then((r) => r);
       toast.promise(handleAcceptRules(telegramId, navigate), {
         loading: "Загрузка...",
@@ -36,6 +47,10 @@ const Rules: FC = () => {
       }, 1500);
     }
   };
+
+  if (isLoading) {
+    return <RulesSkeletonLoader />;
+  }
 
   return (
     <DesignCircles>
@@ -66,9 +81,9 @@ const Rules: FC = () => {
               быстрой мини-игре. Побеждает тот, кому повезет!
             </li>
             <li>
-              <b>Результаты:</b> Победитель закрепляет за место до конца
-              урока, а проигравший его теряет. Новая битва
-              начинается на следующую перемену.
+              <b>Результаты:</b> Победитель закрепляет за место до конца урока,
+              а проигравший его теряет. Новая битва начинается на следующую
+              перемену.
             </li>
           </ol>
           <div className={styles.checkbox_container}>
