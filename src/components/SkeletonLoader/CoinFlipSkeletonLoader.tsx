@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { type FC } from "react";
 import DesignCircles from "../DesignCircles/DesignCircles";
 import Footer from "../Footer";
 import styles from "./SkeletonLoader.module.css";
