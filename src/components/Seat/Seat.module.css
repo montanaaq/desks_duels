@@ -1,6 +1,6 @@
 .desk_circle {
-  width: 23px;
-  height: 23px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   transition: 0.3s linear;
   cursor: pointer;
