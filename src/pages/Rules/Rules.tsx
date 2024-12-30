@@ -10,6 +10,7 @@ import RulesSkeletonLoader from "../../components/SkeletonLoader/RulesSkeletonLo
 import { useTelegram } from "../../hooks/useTelegram";
 import { handleAcceptRules } from "../../services/rulesService";
 import styles from "./Rules.module.css";
+import { isLocal } from "../../config";
 
 const Rules: FC = () => {
   const [isChecked, setIsChecked] = useState(false);
@@ -31,8 +32,12 @@ const Rules: FC = () => {
   };
 
   const handleNextClick = () => {
-    const telegramId = tg.initDataUnsafe?.user.id;
-    if (isChecked) {
+    // Получаем ID пользователя из Telegram или localStorage в зависимости от режима
+    const telegramId = isLocal
+      ? localStorage.getItem("telegramId")
+      : tg.initDataUnsafe?.user.id;
+
+    if (isChecked && telegramId) {
       setIsLoading(true);
       handleAcceptRules(telegramId, navigate).then((r) => r);
       toast.promise(handleAcceptRules(telegramId, navigate), {

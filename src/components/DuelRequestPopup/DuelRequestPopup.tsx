@@ -43,11 +43,15 @@ const DuelRequestPopup: FC<{
 
     // Listen for socket events
     const handleDuelAccepted = (data: { duelId: number }) => {
+      console.log(
+        "[DuelRequestPopup] Received duelAccepted event with data:",
+        data
+      );
       if (data.duelId === request.duelId) {
+        console.log("[DuelRequestPopup] Clearing interval and closing popup");
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
         }
-        toast.dismiss(request.duelId);
         onClose();
       }
     };
@@ -62,7 +66,6 @@ const DuelRequestPopup: FC<{
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
         }
-        toast.dismiss(request.duelId);
         onClose();
       }
     };
@@ -83,7 +86,6 @@ const DuelRequestPopup: FC<{
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
         }
-        toast.dismiss(request.duelId);
         onClose();
       }
     };
@@ -106,7 +108,10 @@ const DuelRequestPopup: FC<{
     try {
       // Вызываем handleDeclineDuel из родительского компонента
       await handleDeclineDuel(request, false);
-      console.log("Duel declined:", request);
+      console.log(
+        "Duel decline step:",
+        request.isConfirmed ? "confirmed" : "initial"
+      );
     } catch (error) {
       console.error("Ошибка при отклонении дуэли:", error);
       toast.error("Не удалось отклонить дуэль");
@@ -114,13 +119,31 @@ const DuelRequestPopup: FC<{
   };
 
   const handleAccept = () => {
-    handleAcceptDuel(request);
-    socket.emit("acceptDuel", {
-      duelId: request.duelId,
-      challengerId: request.challengerId,
-      challengedId: request.challengedId,
-      seatId: request.seatId,
-    });
+    if (isDeclined) {
+      // Если это экран подтверждения отклонения и нажата "Отмена",
+      // просто закрываем текущий попап
+      // И показываем исходный попап дуэли
+      toast.custom(
+        (t: any) => (
+          <DuelRequestPopup
+            request={request}
+            onClose={() => toast.dismiss(t.id)}
+            isInitiator={false}
+            handleDeclineDuel={handleDeclineDuel}
+            handleAcceptDuel={handleAcceptDuel}
+            isDeclined={false}
+          />
+        ),
+        {
+          duration: 60000,
+          id: request.duelId,
+          dismissible: false,
+        }
+      );
+    } else {
+      // Если это первый экран и нажата кнопка "Принять"
+      handleAcceptDuel(request);
+    }
   };
 
   return (

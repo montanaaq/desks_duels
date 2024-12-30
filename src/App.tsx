@@ -5,6 +5,7 @@ import DesignCircles from "./components/DesignCircles/DesignCircles.tsx";
 import Footer from "./components/Footer.tsx";
 import Logo from "./components/Logo.tsx";
 import SkeletonLoader from "./components/SkeletonLoader/SkeletonLoader";
+import { isLocal } from "./config";
 import { useTelegram } from "./hooks/useTelegram.ts";
 import Rules from "./pages/Rules/Rules.tsx";
 import { findUserById } from "./services/userService.ts";
@@ -13,14 +14,38 @@ import type { userType } from "./types/user.types.ts";
 const App: FC = () => {
   const [user, setUser] = useState<userType | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  // const [telegramId, setTelegramId] = useState<number | null>(null);
   const { tg } = useTelegram();
-  const telegramId = tg?.initDataUnsafe?.user?.id;
+  const webAppId = tg?.initDataUnsafe?.user?.id;
+
+  // Инициализируем telegramId в зависимости от режима
+  const [telegramId, setTelegramId] = useState<number | null>(() => {
+    if (isLocal) {
+      const savedId = localStorage.getItem("telegramId");
+      console.log("Local testing mode, telegramId from localStorage:", savedId);
+      return savedId ? Number(savedId) : null;
+    } else {
+      console.log("Production mode, telegramId from WebApp:", webAppId);
+      return webAppId || null;
+    }
+  });
+
+  // Обработчик изменения ID только для локального тестирования
+  const handleTelegramIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isLocal) return;
+    const newId = Number(e.target.value);
+    console.log("Setting new telegramId:", newId);
+    setTelegramId(newId);
+    if (newId) {
+      localStorage.setItem("telegramId", newId.toString());
+    } else {
+      localStorage.removeItem("telegramId");
+    }
+  };
 
   const getUserByTelegramId = async (telegramId: string) => {
     try {
       const userData = await findUserById(telegramId);
-      console.log("Fetched user data:", userData);
+      console.log("Fetched user data for ID", telegramId, ":", userData);
       return userData.user || null;
     } catch (error) {
       console.error("Error getting user by Telegram ID:", error);
@@ -31,21 +56,19 @@ const App: FC = () => {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        if (!tg) {
-          console.error("Telegram WebApp is not initialized");
-          setLoading(false);
-          return;
-        }
-
         if (!telegramId) {
-          console.error("Telegram ID is undefined");
+          console.log("No telegramId available");
           setLoading(false);
           return;
         }
 
+        console.log("Checking user for telegramId:", telegramId);
         const user = await getUserByTelegramId(String(telegramId));
         if (user) {
+          console.log("Found user:", user);
           setUser(user);
+        } else {
+          console.log("No user found for telegramId:", telegramId);
         }
       } catch (error) {
         console.error("Error in checkUser:", error);
@@ -54,11 +77,11 @@ const App: FC = () => {
       }
     };
     checkUser();
-  }, [telegramId, tg]);
+  }, [telegramId]);
 
   if (loading) return <SkeletonLoader />;
 
-  if (!tg || !telegramId || !user) {
+  if (!telegramId || !user) {
     return (
       <DesignCircles>
         <div className="App_if_user_not_found">
@@ -85,16 +108,26 @@ const App: FC = () => {
             </span>
           </p>
           <Footer styles={{ marginTop: "auto" }} />
+
+          {/* Input for testing with different Telegram IDs - only shown in local mode */}
+          {isLocal && (
+            <div style={{ marginTop: "20px" }}>
+              <input
+                type="number"
+                value={telegramId ?? ""}
+                onChange={handleTelegramIdChange}
+                placeholder="Enter Telegram ID"
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  border: "1px solid #ccc",
+                  fontSize: "16px",
+                  width: "200px",
+                }}
+              />
+            </div>
+          )}
         </div>
-        {/* Uncomment the following block if you want to manually enter Telegram ID for testing */}
-        {/* <div>
-          <input
-            type="number"
-            value={telegramId ?? ""}
-            onChange={(e) => setTelegramId(Number(e.target.value))}
-            placeholder="Enter Telegram ID"
-          />
-        </div> */}
       </DesignCircles>
     );
   }

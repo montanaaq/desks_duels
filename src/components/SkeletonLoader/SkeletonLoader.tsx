@@ -7,7 +7,7 @@ const SkeletonLoader: FC = () => {
       <div className={styles.skeleton_header}>
         <div className={styles.skeleton_title} />
         <div className={styles.skeleton_subtitle} />
-        <div className={styles.skeleton_timer} />
+        <div className={styles.timerSkeleton} />
       </div>
       <div className={styles.skeleton_desks_container}>
         <div className={styles.skeleton_desks}>

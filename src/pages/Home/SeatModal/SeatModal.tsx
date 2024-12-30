@@ -27,7 +27,6 @@ const SeatModal: FC<SeatModalProps> = ({
   onOccupy,
 }) => {
   if (!seat) return null;
-  console.log(seat);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>

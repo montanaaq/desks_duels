@@ -1,9 +1,10 @@
 // src/components/Seat/Seat.tsx
+import { isLocal } from "@/config";
 import type { FC } from "react";
 import { toast } from "sonner";
+import useSchoolTimer from "../../hooks/useSchoolTimer";
 import type { SeatType } from "../../types/seat.types";
 import styles from "./Seat.module.css";
-import useSchoolTimer from "../../hooks/useSchoolTimer";
 
 interface SeatProps {
   seat: SeatType;
@@ -13,11 +14,15 @@ interface SeatProps {
 }
 
 const Seat: FC<SeatProps> = ({ seat, isSelected, onSelect, isModalOpen }) => {
-  const { isGameActive } = useSchoolTimer();
-  // const isGameActive = true;
+  // В локальном режиме игра всегда активна, иначе используем таймер
+  const { isGameActive: isGameActiveFromTimer } = useSchoolTimer();
+  const isGameActive = isLocal ? true : isGameActiveFromTimer;
 
   let circleClass;
-  if (seat.status === "dueled" && seat.occupiedBy) {
+  if (
+    (seat.status === "dueled" && seat.occupiedBy) ||
+    seat.status === "dueled"
+  ) {
     // If seat has been dueled, mark it as unavailable
     circleClass = styles.unavailable;
   } else if (seat.occupiedBy) {

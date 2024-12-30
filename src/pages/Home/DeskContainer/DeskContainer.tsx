@@ -24,29 +24,41 @@ const DeskContainer: FC<DeskContainerProps> = ({
     onSelect(seat);
   };
 
+  if (!desks || desks.length === 0) {
+    return <SkeletonLoader />;
+  }
+
   return (
     <div className={styles.desks_container}>
       <div className={styles.desks}>
-        {desks.length > 0 ? (
-          [...Array(18)].map((_, deskIndex) => (
-            <div className={styles.desk} key={deskIndex}>
-              {[...Array(2)].map((_, varIndex) => {
-                const seat = desks[deskIndex * 2 + varIndex];
+        {[...Array(18)].map((_, deskIndex) => (
+          <div className={styles.desk} key={deskIndex}>
+            {[...Array(2)].map((_, varIndex) => {
+              const seatIndex = deskIndex * 2 + varIndex;
+              const seat = desks[seatIndex];
+
+              // Если места нет в массиве, возвращаем пустой div
+              if (!seat) {
                 return (
-                  <Seat
-                    key={seat.id}
-                    seat={seat}
-                    isSelected={seat.id === selectedSeatId}
-                    isModalOpen={isModalOpen}
-                    onSelect={handleSeatSelect}
+                  <div
+                    key={`empty-${seatIndex}`}
+                    className={styles.empty_seat}
                   />
                 );
-              })}
-            </div>
-          ))
-        ) : (
-          <SkeletonLoader />
-        )}
+              }
+
+              return (
+                <Seat
+                  key={seat.id}
+                  seat={seat}
+                  isSelected={seat.id === selectedSeatId}
+                  isModalOpen={isModalOpen}
+                  onSelect={handleSeatSelect}
+                />
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );
