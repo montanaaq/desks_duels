@@ -7,10 +7,10 @@ import DesignCircles from "../../components/DesignCircles/DesignCircles";
 import Footer from "../../components/Footer";
 import Logo from "../../components/Logo";
 import RulesSkeletonLoader from "../../components/SkeletonLoader/RulesSkeletonLoader";
+import { isLocal } from "../../config";
 import { useTelegram } from "../../hooks/useTelegram";
 import { handleAcceptRules } from "../../services/rulesService";
 import styles from "./Rules.module.css";
-import { isLocal } from "../../config";
 
 const Rules: FC = () => {
   const [isChecked, setIsChecked] = useState(false);

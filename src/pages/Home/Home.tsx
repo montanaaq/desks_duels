@@ -10,7 +10,7 @@ import DuelRequestPopup from "../../components/DuelRequestPopup/DuelRequestPopup
 import Footer from "../../components/Footer";
 import SkeletonLoader from "../../components/SkeletonLoader/SkeletonLoader";
 import useSchoolTimer from "../../hooks/useSchoolTimer";
-import { requestDuel } from "../../services/duelService";
+import { getActiveDuel, requestDuel } from "../../services/duelService";
 import { getDesks, getSeatById, takeSeat } from "../../services/seatService";
 import { initializeSocket, socket } from "../../services/socketService";
 import { findUserById } from "../../services/userService";
@@ -33,6 +33,7 @@ export interface DuelRequest {
   challengedName: string;
   seatId: number;
   isConfirmed?: boolean;
+  createdAt: string;
 }
 
 interface DuelTimeoutEventDetail {
@@ -54,6 +55,10 @@ const Home: FC<HomeProps> = ({ user }) => {
   const rerenderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const isSocketInitializedRef = useRef(false);
+  const [activeDuelAsInitiator, setActiveDuelAsInitiator] =
+    useState<DuelRequest | null>(null);
+  const [activeDuelAsTarget, setActiveDuelAsTarget] =
+    useState<DuelRequest | null>(null);
 
   duelRequest;
 
@@ -80,6 +85,78 @@ const Home: FC<HomeProps> = ({ user }) => {
       }
     };
 
+    // Проверяем активные дуэли при загрузке
+    const checkActiveDuel = async () => {
+      try {
+        const activeDuel = await getActiveDuel(user.telegramId);
+        if (activeDuel && activeDuel.duel) {
+          const { duel } = activeDuel;
+
+          // Определяем роль пользователя в дуэли
+          const isInitiator = duel.player1 === user.telegramId;
+
+          // Получаем имена участников
+          const [challenger, challenged] = await Promise.all([
+            findUserById(duel.player1),
+            findUserById(duel.player2),
+          ]);
+
+          const duelRequest: DuelRequest = {
+            duelId: duel.id,
+            challengerId: duel.player1,
+            challengerName: challenger.user?.name || "Игрок 1",
+            challengedId: duel.player2,
+            challengedName: challenged.user?.name || "Игрок 2",
+            seatId: duel.seatId,
+            createdAt: duel.createdAt,
+          };
+
+          // Показываем соответствующий попап
+          if (isInitiator) {
+            setActiveDuelAsInitiator(duelRequest);
+            toast.custom(
+              (t: any) => (
+                <DuelRequestPopup
+                  request={duelRequest}
+                  onClose={() => toast.dismiss(t.id)}
+                  isInitiator={true}
+                  handleDeclineDuel={handleDeclineDuel}
+                  handleAcceptDuel={handleAcceptDuel}
+                  isDeclined={false}
+                />
+              ),
+              {
+                duration: 60000,
+                id: duelRequest.duelId,
+                dismissible: false,
+              }
+            );
+          } else {
+            setActiveDuelAsTarget(duelRequest);
+            toast.custom(
+              (t: any) => (
+                <DuelRequestPopup
+                  request={duelRequest}
+                  onClose={() => toast.dismiss(t.id)}
+                  isInitiator={false}
+                  handleDeclineDuel={handleDeclineDuel}
+                  handleAcceptDuel={handleAcceptDuel}
+                  isDeclined={false}
+                />
+              ),
+              {
+                duration: 60000,
+                id: duelRequest.duelId,
+                dismissible: false,
+              }
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Error checking active duel:", error);
+      }
+    };
+
     console.log("[Home] Checking socket initialization");
 
     // Initialize socket and register handlers only once
@@ -98,8 +175,9 @@ const Home: FC<HomeProps> = ({ user }) => {
         showDuelRequestPopupToOpponent
       );
 
-      // Request initial seats data
+      // Request initial seats data and check active duels
       socket.emit("requestInitialSeats");
+      checkActiveDuel();
 
       // Listen for seat updates
       socket.on("seatsUpdated", (updatedSeats) => {
@@ -115,6 +193,33 @@ const Home: FC<HomeProps> = ({ user }) => {
         showDuelRequestPopupToOpponent(request);
       });
 
+      // Listen for duel accepted event
+      socket.on("duelAccepted", (data) => {
+        console.log("Received duelAccepted event:", data);
+        // Очищаем состояния активных дуэлей
+        setActiveDuelAsInitiator(null);
+        setActiveDuelAsTarget(null);
+        toast.dismiss(data.duel?.id);
+      });
+
+      // Listen for duel declined event
+      socket.on("duelDeclined", (data) => {
+        console.log("Received duelDeclined event:", data);
+        // Очищаем состояния активных дуэлей
+        setActiveDuelAsInitiator(null);
+        setActiveDuelAsTarget(null);
+        toast.dismiss(data.duel?.id);
+      });
+
+      // Listen for duel timeout event
+      socket.on("duelTimeout", (data) => {
+        console.log("Received duelTimeout event:", data);
+        // Очищаем состояния активных дуэлей
+        setActiveDuelAsInitiator(null);
+        setActiveDuelAsTarget(null);
+        toast.dismiss(data.duel?.id);
+      });
+
       fetchInitialDesks();
 
       return () => {
@@ -123,6 +228,9 @@ const Home: FC<HomeProps> = ({ user }) => {
         cleanupSocket();
         socket.off("seatsUpdated");
         socket.off("duelRequest");
+        socket.off("duelAccepted");
+        socket.off("duelDeclined");
+        socket.off("duelTimeout");
         if (rerenderTimeoutRef.current) {
           clearTimeout(rerenderTimeoutRef.current);
         }
@@ -184,28 +292,52 @@ const Home: FC<HomeProps> = ({ user }) => {
     if (selectedSeat && selectedSeat.occupiedBy && occupiedByUser) {
       try {
         const latestSeat = await getSeatById(selectedSeat.id);
-        // Проверяем, не участвует ли место в дуэли
-        if (latestSeat.status === "dueled") {
-          toast.error("Это место уже участвует в дуэли.", {
-            closeButton: true,
-            duration: 3000,
-          });
+        if (!latestSeat || latestSeat.occupiedBy !== selectedSeat.occupiedBy) {
+          toast.error("Это место уже занято другим пользователем");
           return;
         }
 
-        // Проверяем, не участвует ли текущий пользователь в другой дуэли
-        if (user.dueling) {
-          toast.error("Вы уже участвуете в другой дуэли.", {
-            closeButton: true,
-            duration: 3000,
-          });
+        // Проверяем, не является ли пользователь инициатором активной дуэли
+        if (activeDuelAsInitiator) {
+          const now = new Date();
+          const duelCreatedAt = new Date(activeDuelAsInitiator.createdAt);
+          const timeSinceLastDuel =
+            (now.getTime() - duelCreatedAt.getTime()) / 1000;
+
+          if (timeSinceLastDuel < 60) {
+            toast.error(
+              "Вы не можете начать новую дуэль, пока не завершится текущая или не пройдет 60 секунд",
+              {
+                closeButton: true,
+                duration: 3000,
+              }
+            );
+            return;
+          }
+        }
+
+        // Проверяем, не является ли пользователь целью другой активной дуэли
+        if (activeDuelAsTarget) {
+          toast.error(
+            "Вы не можете начать дуэль, пока не ответите на текущий вызов",
+            {
+              closeButton: true,
+              duration: 3000,
+            }
+          );
           return;
         }
 
-        // Проверяем, не участвует ли противник в другой дуэли
-        const opponent = await findUserById(selectedSeat.occupiedBy);
-        if (opponent.user.dueling) {
-          toast.error("Противник уже участвует в другой дуэли.", {
+        // Проверяем, не является ли цель инициатором или целью другой дуэли
+        const targetHasActiveDuel = desks.some(
+          (desk) =>
+            desk.hasPendingDuel &&
+            (desk.pendingDuelInitiator === selectedSeat.occupiedBy ||
+              desk.pendingDuelTarget === selectedSeat.occupiedBy)
+        );
+
+        if (targetHasActiveDuel) {
+          toast.error("Этот игрок уже участвует в другой дуэли", {
             closeButton: true,
             duration: 3000,
           });
@@ -231,7 +363,11 @@ const Home: FC<HomeProps> = ({ user }) => {
             challengedId: selectedSeat.occupiedBy.toString(),
             challengedName: occupiedByUser?.name || "Соперник",
             seatId: selectedSeat.id,
+            createdAt: duel.createdAt || new Date().toISOString(),
           };
+
+          // Устанавливаем активную дуэль для инициатора
+          setActiveDuelAsInitiator(duelRequest);
 
           // show a toast with the duel request to initiator
           toast.custom(
@@ -259,6 +395,8 @@ const Home: FC<HomeProps> = ({ user }) => {
             seatId: selectedSeat.id,
             challengerName: user.name,
             challengedName: occupiedByUser?.name || "Соперник",
+            duelId: duel.id,
+            createdAt: duel.createdAt,
           });
         } else {
           console.error("Ошибка создания дуэли: Некорректный ответ от сервера");
@@ -273,12 +411,19 @@ const Home: FC<HomeProps> = ({ user }) => {
   const showDuelRequestPopupToOpponent = (request: DuelRequest) => {
     console.log("Showing duel request popup:", request);
 
-    // Показываем уведомление только для challenged пользователя
     if (user.telegramId === request.challengedId) {
+      const requestWithTime = {
+        ...request,
+        createdAt: request.createdAt || new Date().toISOString(),
+      };
+
+      // Устанавливаем активную дуэль для цели
+      setActiveDuelAsTarget(requestWithTime);
+
       toast.custom(
         (t: any) => (
           <DuelRequestPopup
-            request={request}
+            request={requestWithTime}
             onClose={() => toast.dismiss(t.id)}
             isInitiator={false}
             handleDeclineDuel={handleDeclineDuel}
@@ -297,6 +442,10 @@ const Home: FC<HomeProps> = ({ user }) => {
 
   const handleAcceptDuel = async (request: DuelRequest) => {
     try {
+      // Очищаем состояния активных дуэлей
+      setActiveDuelAsInitiator(null);
+      setActiveDuelAsTarget(null);
+
       // Очищаем состояние дуэли
       duelRequestRef.current = null;
       setDuelRequest(null);
@@ -345,6 +494,10 @@ const Home: FC<HomeProps> = ({ user }) => {
     }
 
     try {
+      // Очищаем состояния активных дуэлей
+      setActiveDuelAsInitiator(null);
+      setActiveDuelAsTarget(null);
+
       // Отправляем событие отклонения через сокет
       socket.emit("declineDuel", {
         duelId: request.duelId,
@@ -447,6 +600,26 @@ const Home: FC<HomeProps> = ({ user }) => {
       }
     }
   };
+
+  // Добавляем эффект для очистки истекших дуэлей
+  useEffect(() => {
+    const cleanupInterval = setInterval(() => {
+      const now = new Date();
+
+      // Проверяем и очищаем истекшие дуэли инициатора
+      if (activeDuelAsInitiator) {
+        const duelCreatedAt = new Date(activeDuelAsInitiator.createdAt);
+        const timeSinceLastDuel =
+          (now.getTime() - duelCreatedAt.getTime()) / 1000;
+
+        if (timeSinceLastDuel >= 60) {
+          setActiveDuelAsInitiator(null);
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(cleanupInterval);
+  }, [activeDuelAsInitiator]);
 
   return (
     <DesignCircles>

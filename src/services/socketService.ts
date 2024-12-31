@@ -78,7 +78,7 @@ export const initializeSocket = (
       console.log("[socketService] Setting redirect timeout to coinflip page");
       setTimeout(() => {
         window.location.href = `/coinflip/${data.request.duelId}/${data.request.challengerId}/${data.request.challengedId}`;
-      }, 5000);
+      }, 3000);
     }
   });
 

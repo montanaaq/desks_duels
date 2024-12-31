@@ -18,6 +18,7 @@ const Seat: FC<SeatProps> = ({ seat, isSelected, onSelect, isModalOpen }) => {
   const { isGameActive: isGameActiveFromTimer } = useSchoolTimer();
   const isGameActive = isLocal ? true : isGameActiveFromTimer;
 
+
   let circleClass;
   if (
     (seat.status === "dueled" && seat.occupiedBy) ||

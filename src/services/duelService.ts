@@ -153,3 +153,19 @@ export const getDuelsBySeat = async (seatId: number): Promise<duelType[]> => {
     return []; // Return empty array on error to prevent UI crashes
   }
 };
+
+export const getActiveDuel = async (userId: string) => {
+  try {
+    const response = await fetch(`${url}/duels/active/${userId}`);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Ошибка при получении активной дуэли');
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error fetching active duel:', error);
+    throw error;
+  }
+};

@@ -9,6 +9,7 @@ import DesignCircles from "../../components/DesignCircles/DesignCircles";
 import Footer from "../../components/Footer";
 import Logo from "../../components/Logo";
 import CoinFlipSkeletonLoader from "../../components/SkeletonLoader/CoinFlipSkeletonLoader";
+import InlineSkeletonLoader from "../../components/SkeletonLoader/InlineSkeletonLoader";
 import { url } from "../../config";
 import { completeDuel } from "../../services/duelService";
 import { findUserById, setDuelingFlag } from "../../services/userService";
@@ -69,26 +70,32 @@ const CoinFlip: FC = () => {
 
           // Null check for response and duel
           if (response?.duel) {
-            setFlipping(false);
+            // Даем монетке покрутиться перед показом результата
+            setTimeout(() => {
+              setFlipping(false);
+              // Set coin flip result from backend
+              setResult(response?.duel?.coinFlipResult ?? "Орёл");
 
-            // Set coin flip result from backend
-            setResult(response.duel.coinFlipResult);
+              // Safely set winner name with fallback
+              const winnerUser = findUserById(
+                response?.duel?.winner ?? challengerId
+              );
+              winnerUser.then((user) => {
+                const winnerName = user.user?.name;
+                setWinnerName(winnerName);
+                // Show winner information prominently
+                toast.info(`🏆 ${winnerName} выиграл дуэль!`, {
+                  duration: 5000,
+                  position: "top-center",
+                });
+              });
+            }, 2000);
 
-            // Safely set winner name with fallback
-            const winnerUser = await findUserById(response.duel.winner);
-            const winnerName = winnerUser.user?.name;
-            setWinnerName(winnerName);
-            // Show winner information prominently
-            toast.success(`🏆 ${winnerName} выиграл дуэль!`, {
-              duration: 5000,
-              position: "top-center",
-            });
-
-            // Перенаправляем пользователей на страницу выбора места через 3 секунды
+            // Перенаправляем пользователей на страницу выбора места через 7 секунд
             setTimeout(() => {
               console.log(`Перенаправляем на страницу выбора места`);
               navigate("/");
-            }, 5000);
+            }, 7000);
           } else {
             throw new Error("Invalid duel response");
           }
@@ -152,25 +159,29 @@ const CoinFlip: FC = () => {
       const response = await completeDuel(Number(duelId));
 
       if (response?.duel) {
-        setFlipping(false);
-        setResult(response.duel.coinFlipResult);
+        // Даем монетке покрутиться 2 секунды перед показом результата
+        setTimeout(() => {
+          setFlipping(false);
+          setResult(response?.duel?.coinFlipResult ?? "Орёл");
 
-        const winnerUser = await findUserById(response.duel.winner);
-        const winnerName = winnerUser.user?.name;
-        setWinnerName(winnerName);
+          // Показываем уведомление только после остановки анимации
+          const winnerUser = findUserById(
+            response?.duel?.winner ?? challengerId
+          );
+          winnerUser.then((user) => {
+            const winnerName = user.user?.name;
+            setWinnerName(winnerName);
+            toast.info(`🏆 ${winnerName} выиграл дуэль!`, {
+              duration: 5000,
+              position: "top-center",
+            });
+          });
+        }, 2000);
 
-        toast.info(`🏆 ${winnerName} выиграл дуэль!`, {
-          duration: 5000,
-        });
-
-        socket.emit("duelResult", {
-          duelId: parseInt(duelId),
-          result: response.duel,
-        });
-
+        // Перенаправляем через 7 секунд
         setTimeout(() => {
           navigate("/");
-        }, 5000);
+        }, 7000);
       } else {
         throw new Error("Invalid duel response");
       }
@@ -213,12 +224,18 @@ const CoinFlip: FC = () => {
           </div>
           <p>Подбрасываем монету...</p>
           <div className={`${styles.coin} ${flipping ? styles.flipping : ""}`}>
-            {result ? <span>{result}</span> : <span>...</span>}
+            {result && !flipping ? <span>{result}</span> : <span>...</span>}
           </div>
-          {winnerName && (
+          {flipping ? (
             <h2 style={{ fontSize: "24px" }}>
-              Победитель: <b>{winnerName}</b>
+              Победитель: <InlineSkeletonLoader />
             </h2>
+          ) : (
+            winnerName && (
+              <h2 style={{ fontSize: "24px" }}>
+                Победитель: <b>{winnerName}</b>
+              </h2>
+            )
           )}
         </div>
         <Footer styles={{ marginTop: "auto" }} />

@@ -8,4 +8,7 @@ export type SeatType = {
 	occupiedBy: string | null;
 	status: "available" | "occupied" | "dueled";
 	timeoutDuel?: duelType | null;
+	hasPendingDuel?: boolean;
+	pendingDuelInitiator?: string | null;
+	pendingDuelTarget?: string | null;
 }

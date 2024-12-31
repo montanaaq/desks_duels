@@ -5,6 +5,8 @@ import type { DuelRequest } from "../../pages/Home/Home";
 import { socket } from "../../services/socketService";
 import styles from "./DuelRequestPopup.module.css";
 
+const DUEL_TIMEOUT_SECONDS = 60;
+
 const DuelRequestPopup: FC<{
   request: DuelRequest;
   onClose: () => void;
@@ -20,25 +22,64 @@ const DuelRequestPopup: FC<{
   handleAcceptDuel,
   isDeclined,
 }) => {
-  const [remainingTime, setRemainingTime] = useState<number>(60);
+  const [remainingTime, setRemainingTime] =
+    useState<number>(DUEL_TIMEOUT_SECONDS);
   const intervalRef = useRef<NodeJS.Timeout | null | undefined>(null);
   const isHandlingTimeout = useRef<boolean>(false);
 
   useEffect(() => {
-    // Start the countdown
-    intervalRef.current = setInterval(() => {
-      setRemainingTime((prevTime) => {
-        if (prevTime <= 1 && !isHandlingTimeout.current) {
-          isHandlingTimeout.current = true;
-          handleDeclineDuel(request, true);
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-          }
-          onClose();
-          return 0;
+    // Вычисляем оставшееся время на основе времени создания дуэли
+    const calculateRemainingTime = () => {
+      try {
+        // Парсим ISO строку в объект Date
+        const createdAt = new Date(request.createdAt);
+        const now = new Date();
+
+        // Проверяем валидность даты
+        if (isNaN(createdAt.getTime())) {
+          console.error("Invalid date format:", request.createdAt);
+          return DUEL_TIMEOUT_SECONDS;
         }
-        return prevTime - 1;
-      });
+
+        // Вычисляем разницу в секундах
+        const elapsedSeconds = Math.floor(
+          (now.getTime() - createdAt.getTime()) / 1000
+        );
+        const remaining = Math.max(0, DUEL_TIMEOUT_SECONDS - elapsedSeconds);
+
+        return remaining;
+      } catch (error) {
+        console.error("Error calculating remaining time:", error);
+        return DUEL_TIMEOUT_SECONDS;
+      }
+    };
+
+    // Устанавливаем начальное значение
+    const initialRemaining = calculateRemainingTime();
+    setRemainingTime(initialRemaining);
+
+    // Если время уже истекло, сразу вызываем таймаут
+    if (initialRemaining <= 0 && !isHandlingTimeout.current) {
+      isHandlingTimeout.current = true;
+      handleDeclineDuel(request, true);
+      onClose();
+      return;
+    }
+
+    // Запускаем таймер
+    intervalRef.current = setInterval(() => {
+      const remaining = calculateRemainingTime();
+
+      if (remaining <= 0 && !isHandlingTimeout.current) {
+        isHandlingTimeout.current = true;
+        handleDeclineDuel(request, true);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+        onClose();
+      } else {
+        setRemainingTime(remaining);
+      }
     }, 1000);
 
     // Listen for socket events
@@ -94,6 +135,7 @@ const DuelRequestPopup: FC<{
     socket.on("duelDeclined", handleDuelDeclined);
     socket.on("duelTimeout", handleDuelTimeout);
 
+    // Очистка при размонтировании
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -102,7 +144,7 @@ const DuelRequestPopup: FC<{
       socket.off("duelDeclined", handleDuelDeclined);
       socket.off("duelTimeout", handleDuelTimeout);
     };
-  }, [request, handleDeclineDuel, onClose]);
+  }, [request.createdAt, handleDeclineDuel, onClose]);
 
   const handleDecline = async () => {
     try {

@@ -50,6 +50,7 @@ h2 {
     inset 0 2px 4px rgba(255, 255, 255, 0.3);
   position: relative;
   overflow: hidden;
+  margin-bottom: 20px;
 }
 
 .flipping {
@@ -94,12 +95,12 @@ h2 {
 /* Адаптация под мобильные устройства */
 @media (max-width: 600px) {
   .coinFlip_container p {
-    font-size: 24px; /* Уменьшаем размер текста */
+    font-size: 24px;
     margin-bottom: 15px;
   }
 
   .coin {
-    width: 150px; /* Уменьшаем размер монеты */
+    width: 150px;
     height: 150px;
     font-size: 22px;
   }
