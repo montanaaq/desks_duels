@@ -15,8 +15,9 @@ interface SeatProps {
 
 const Seat: FC<SeatProps> = ({ seat, isSelected, onSelect, isModalOpen }) => {
   // В локальном режиме игра всегда активна, иначе используем таймер
-  const { isGameActive: isGameActiveFromTimer } = useSchoolTimer();
-  const isGameActive = isLocal ? true : isGameActiveFromTimer;
+  // const { isGameActive: isGameActiveFromTimer } = useSchoolTimer();
+  // const isGameActive = isLocal ? true : isGameActiveFromTimer;
+  const isGameActive = true;
 
 
   let circleClass;
