@@ -90,9 +90,10 @@ export const initializeSocket = (
 
     // Показываем уведомление о занятии места
     if (data.message) {
-      toast.info(data.message, { duration: 5000 });
+      toast.info(data.message, { 
+        duration: 5000,
+      });
     }
-
   });
 
   socket.on("duelCompleted", (updatedSeat: SeatType) => {

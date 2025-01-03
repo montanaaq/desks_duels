@@ -398,6 +398,7 @@ const Home: FC<HomeProps> = ({ user }) => {
             duelId: duel.id,
             createdAt: duel.createdAt,
           });
+          console.log("Duel request sent:", duelRequest);
         } else {
           console.error("Ошибка создания дуэли: Некорректный ответ от сервера");
           toast.error("Ошибка создания дуэли");
