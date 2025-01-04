@@ -80,6 +80,7 @@ const Home: FC<HomeProps> = ({ user }) => {
       } catch (error) {
         console.error("Error fetching desks:", error);
         toast.error("Ошибка загрузки мест. Попробуйте позже.");
+        window.location.reload();
       } finally {
         setIsLoading(false);
       }
@@ -181,9 +182,35 @@ const Home: FC<HomeProps> = ({ user }) => {
 
       // Listen for seat updates
       socket.on("seatsUpdated", (updatedSeats) => {
-        if (updatedSeats && Array.isArray(updatedSeats)) {
-          console.log("Received seatsUpdated event:", updatedSeats);
-          setDesks(updatedSeats);
+        if (!updatedSeats?.length) return;
+        console.log("Received seatsUpdated event:", updatedSeats);
+        setDesks(updatedSeats);
+
+        // Если нет выбранного места, обновлять нечего
+        if (!selectedSeat) return;
+
+        // Ищем обновленное место
+        const updatedSelectedSeat = updatedSeats.find(
+          (seat: SeatType) => seat.id === selectedSeat.id
+        );
+        if (!updatedSelectedSeat) return;
+
+        // Проверяем изменения
+        const hasOccupiedByChanged =
+          String(updatedSelectedSeat.occupiedBy) !==
+          String(selectedSeat.occupiedBy);
+        const hasStatusChanged =
+          updatedSelectedSeat.status !== selectedSeat.status;
+
+        // Если ничего не изменилось, выходим
+        if (!hasOccupiedByChanged && !hasStatusChanged) return;
+
+        // Обновляем выбранное место
+        setSelectedSeat(updatedSelectedSeat);
+
+        // Если изменился occupiedBy, обновляем информацию о пользователе
+        if (hasOccupiedByChanged) {
+          updateUserInfo(updatedSelectedSeat.occupiedBy || null);
         }
       });
 
@@ -209,6 +236,13 @@ const Home: FC<HomeProps> = ({ user }) => {
         setActiveDuelAsInitiator(null);
         setActiveDuelAsTarget(null);
         toast.dismiss(data.duel?.id);
+
+        // Показываем сообщение о результате только если это не сообщение о занятии места
+        if (data.message && !data.message.includes("занял место")) {
+          toast.info(data.message, {
+            duration: 5000,
+          });
+        }
       });
 
       // Listen for duel timeout event
@@ -218,6 +252,33 @@ const Home: FC<HomeProps> = ({ user }) => {
         setActiveDuelAsInitiator(null);
         setActiveDuelAsTarget(null);
         toast.dismiss(data.duel?.id);
+
+        // Показываем сообщение о таймауте
+        if (data.message) {
+          toast.info(data.message, {
+            duration: 5000,
+          });
+        }
+      });
+
+      // Listen for duel result event
+      socket.on("duelResult", (data) => {
+        console.log("Received duelResult event:", data);
+
+        // Очищаем состояния активных дуэлей
+        setActiveDuelAsInitiator(null);
+        setActiveDuelAsTarget(null);
+
+        // Запрашиваем обновленные данные о местах
+        socket.emit("requestInitialSeats");
+      });
+
+      // Добавляем обработчик ошибок сокета
+      socket.on("error", (error) => {
+        console.error("Socket error:", error);
+        if (error?.message === "Место уже занято.") {
+          setTimeout(() => window.location.reload(), 1000);
+        }
       });
 
       fetchInitialDesks();
@@ -231,6 +292,7 @@ const Home: FC<HomeProps> = ({ user }) => {
         socket.off("duelAccepted");
         socket.off("duelDeclined");
         socket.off("duelTimeout");
+        socket.off("duelResult");
         if (rerenderTimeoutRef.current) {
           clearTimeout(rerenderTimeoutRef.current);
         }
@@ -294,6 +356,7 @@ const Home: FC<HomeProps> = ({ user }) => {
         const latestSeat = await getSeatById(selectedSeat.id);
         if (!latestSeat || latestSeat.occupiedBy !== selectedSeat.occupiedBy) {
           toast.error("Это место уже занято другим пользователем");
+          window.location.reload();
           return;
         }
 
@@ -369,35 +432,53 @@ const Home: FC<HomeProps> = ({ user }) => {
           // Устанавливаем активную дуэль для инициатора
           setActiveDuelAsInitiator(duelRequest);
 
-          // show a toast with the duel request to initiator
-          toast.custom(
-            (t: any) => (
-              <DuelRequestPopup
-                request={duelRequest}
-                onClose={() => toast.dismiss(t.id)}
-                isInitiator={true}
-                handleDeclineDuel={handleDeclineDuel}
-                handleAcceptDuel={handleAcceptDuel}
-                isDeclined={false}
-              />
-            ),
+          // Отправляем запрос и показываем уведомления
+          await toast.promise(
+            new Promise((resolve, reject) => {
+              try {
+                socket.emit("duelRequest", {
+                  challengerId: user.telegramId,
+                  challengedId: selectedSeat.occupiedBy?.toString() || "",
+                  seatId: selectedSeat.id,
+                  challengerName: user.name,
+                  challengedName: occupiedByUser?.name || "Соперник",
+                  duelId: duel.id,
+                  createdAt: duel.createdAt,
+                });
+
+                // Добавляем небольшую задержку перед resolve
+                setTimeout(() => {
+                  // После успешной отправки показываем попап
+                  toast.custom(
+                    (t: any) => (
+                      <DuelRequestPopup
+                        request={duelRequest}
+                        onClose={() => toast.dismiss(t.id)}
+                        isInitiator={true}
+                        handleDeclineDuel={handleDeclineDuel}
+                        handleAcceptDuel={handleAcceptDuel}
+                        isDeclined={false}
+                      />
+                    ),
+                    {
+                      duration: 60000,
+                      id: duelRequest.duelId,
+                      dismissible: false,
+                    }
+                  );
+                  resolve(true);
+                }, 1000); // Задержка в 1 секунду
+              } catch (error) {
+                reject(error);
+              }
+            }),
             {
-              duration: 60000,
-              id: duelRequest.duelId,
-              dismissible: false,
+              loading: "Отправляем вызов на дуэль...",
+              success: `Вызов отправлен игроку ${occupiedByUser?.name}!`,
+              error: "Не удалось отправить вызов",
             }
           );
 
-          // Отправляем запрос на дуэль через сокет
-          socket.emit("duelRequest", {
-            challengerId: user.telegramId,
-            challengedId: selectedSeat.occupiedBy.toString(),
-            seatId: selectedSeat.id,
-            challengerName: user.name,
-            challengedName: occupiedByUser?.name || "Соперник",
-            duelId: duel.id,
-            createdAt: duel.createdAt,
-          });
           console.log("Duel request sent:", duelRequest);
         } else {
           console.error("Ошибка создания дуэли: Некорректный ответ от сервера");
@@ -520,19 +601,42 @@ const Home: FC<HomeProps> = ({ user }) => {
     }
   };
 
-  const handleSelectSeat = async (seat: SeatType) => {
-    setSelectedSeat(seat);
-    if (seat.occupiedBy) {
-      try {
-        const occupant = await findUserById(seat.occupiedBy);
-        setOccupiedByUser(occupant.user);
-      } catch (error) {
-        console.error("Error fetching user:", error);
-        toast.error("Ошибка загрузки информации о пользователе.");
+  const getUserFromStorage = (telegramId: string): userType | null => {
+    const storageKey = `seat_occupant_${telegramId}`;
+    const storedData = localStorage.getItem(storageKey);
+    if (!storedData) return null;
+
+    try {
+      const { user, timestamp } = JSON.parse(storedData);
+      const isDataFresh = Date.now() - timestamp < 3600000; // 1 hour
+
+      if (!isDataFresh) {
+        localStorage.removeItem(storageKey);
+        return null;
       }
-    } else {
-      setOccupiedByUser(null);
+
+      return user;
+    } catch (error) {
+      console.error("Error parsing stored user data:", error);
+      localStorage.removeItem(storageKey);
+      return null;
     }
+  };
+
+  const saveUserToStorage = (telegramId: string, userData: userType): void => {
+    const storageKey = `seat_occupant_${telegramId}`;
+    localStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        user: userData,
+        timestamp: Date.now(),
+      })
+    );
+  };
+
+  const handleSelectSeat = async (seat: SeatType): Promise<void> => {
+    setSelectedSeat(seat);
+    await updateUserInfo(seat.occupiedBy || null);
   };
 
   const handleCloseModal = () => {
@@ -574,7 +678,14 @@ const Home: FC<HomeProps> = ({ user }) => {
           {
             loading: "Занимаем место...",
             success: "Место успешно занято!",
-            error: "Ошибка! Попробуйте позже.",
+            error: (err) => {
+              // Проверяем сообщение об ошибке с бэкенда
+              if (err?.message === "Место уже занято." || err?.status === 409) {
+                window.location.reload();
+                return "Место уже занято другим пользователем";
+              }
+              return "Ошибка! Попробуйте позже.";
+            },
           }
         );
       } catch (error: any) {
@@ -598,6 +709,14 @@ const Home: FC<HomeProps> = ({ user }) => {
           })
         );
         console.error("Error occupying seat:", error);
+
+        // Проверяем сообщение об ошибке с бэкенда или сокета
+        if (error?.message === "Место уже занято." || error?.status === 409) {
+          toast.error("Место уже занято другим пользователем");
+          window.location.reload();
+        } else {
+          toast.error("Ошибка! Попробуйте позже.");
+        }
       }
     }
   };
@@ -621,6 +740,38 @@ const Home: FC<HomeProps> = ({ user }) => {
 
     return () => clearInterval(cleanupInterval);
   }, [activeDuelAsInitiator]);
+
+  const updateUserInfo = async (occupiedById: string | null): Promise<void> => {
+    if (!occupiedById) {
+      setOccupiedByUser(null);
+      return;
+    }
+
+    // Если тот же пользователь, не обновляем
+    if (occupiedByUser?.telegramId === occupiedById) {
+      return;
+    }
+
+    // Пробуем получить из кэша
+    const cachedUser = getUserFromStorage(occupiedById);
+    if (cachedUser) {
+      setOccupiedByUser(cachedUser);
+      return;
+    }
+
+    // Если нет в кэше, делаем запрос
+    try {
+      const occupant = await findUserById(occupiedById);
+      setOccupiedByUser(occupant.user);
+      saveUserToStorage(occupiedById, occupant.user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      toast.error(
+        "Ошибка загрузки информации о пользователе. Возможно, место уже занято."
+      );
+      window.location.reload();
+    }
+  };
 
   return (
     <DesignCircles>
