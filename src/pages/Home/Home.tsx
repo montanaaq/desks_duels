@@ -44,11 +44,6 @@ interface DuelTimeoutEventDetail {
 	};
 }
 
-interface ErrorType {
-	status: number;
-	message: string;
-}
-
 const Home: FC<HomeProps> = ({ user }) => {
 	const { time, isGameActive } = useSchoolTimer();
 	const [desks, setDesks] = useState<SeatType[]>([]);
@@ -545,7 +540,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 
 			// Закрываем уведомление
 			toast.dismiss(request.duelId);
-		} catch (error: ErrorType) {
+		} catch (error) {
 			console.log(`Error accepting duel: ${error}`);
 			toast.error(error.message || "Ошибка при принятии дуэли.", {
 				closeButton: true,
@@ -598,7 +593,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 			// Очищаем состояние дуэли
 			duelRequestRef.current = null;
 			setDuelRequest(null);
-		} catch (error: ErrorType) {
+		} catch (error) {
 			console.error("Error declining duel:", error);
 			toast.error(error.message || "Ошибка при отклонении дуэли.", {
 				closeButton: true,
@@ -684,7 +679,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 					{
 						loading: "Занимаем место...",
 						success: "Место успешно занято!",
-						error: (err: ErrorType) => {
+						error: (err) => {
 							// Проверяем сообщение об ошибке с бэкенда
 							if (err?.message === "Место уже занято." || err?.status === 409) {
 								window.location.reload();
@@ -694,7 +689,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 						},
 					}
 				);
-			} catch (error: ErrorType) {
+			} catch (error) {
 				// If the update fails, revert both the new and previous seat changes
 				setDesks((prevDesks) =>
 					prevDesks.map((desk) => {
