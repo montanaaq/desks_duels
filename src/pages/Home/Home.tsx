@@ -540,7 +540,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 
 			// Закрываем уведомление
 			toast.dismiss(request.duelId);
-		} catch (error) {
+		} catch (error: any) {
 			console.log(`Error accepting duel: ${error}`);
 			toast.error(error.message || "Ошибка при принятии дуэли.", {
 				closeButton: true,
@@ -593,7 +593,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 			// Очищаем состояние дуэли
 			duelRequestRef.current = null;
 			setDuelRequest(null);
-		} catch (error) {
+		} catch (error: any) {
 			console.error("Error declining duel:", error);
 			toast.error(error.message || "Ошибка при отклонении дуэли.", {
 				closeButton: true,
@@ -689,7 +689,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 						},
 					}
 				);
-			} catch (error) {
+			} catch (error: any) {
 				// If the update fails, revert both the new and previous seat changes
 				setDesks((prevDesks) =>
 					prevDesks.map((desk) => {
