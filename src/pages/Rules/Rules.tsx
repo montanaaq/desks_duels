@@ -1,22 +1,22 @@
 // pages/Rules/Rules.tsx
-import type { FC } from "react";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast, Toaster } from "sonner";
+import type {FC} from "react";
+import {useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {toast, Toaster} from "sonner";
 import DesignCircles from "../../components/DesignCircles/DesignCircles";
 import Footer from "../../components/Footer";
 import Logo from "../../components/Logo";
 import RulesSkeletonLoader from "../../components/SkeletonLoader/RulesSkeletonLoader";
-import { isLocal } from "../../config";
-import { useTelegram } from "../../hooks/useTelegram";
-import { handleAcceptRules } from "../../services/rulesService";
+import {isLocal} from "@/config.ts";
+import {useTelegram} from "@/hooks/useTelegram.ts";
+import {handleAcceptRules} from "@/services/rulesService.ts";
 import styles from "./Rules.module.css";
 
 const Rules: FC = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const { tg } = useTelegram();
+  const {tg} = useTelegram();
 
   useEffect(() => {
     // Имитация загрузки данных
@@ -54,7 +54,7 @@ const Rules: FC = () => {
   };
 
   if (isLoading) {
-    return <RulesSkeletonLoader />;
+    return <RulesSkeletonLoader/>;
   }
 
   return (
@@ -67,8 +67,8 @@ const Rules: FC = () => {
       />
       <div className={styles.rules_wrapper}>
         <Logo
-          style={{ marginTop: "10px", width: "135px", height: "90px" }}
-          textStyles={{ fontSize: "20px", marginTop: "10px" }}
+          style={{marginTop: "10px", width: "135px", height: "90px"}}
+          textStyles={{fontSize: "20px", marginTop: "10px"}}
         />
         <div className={styles.container}>
           <h1>Правила игры</h1>
@@ -109,7 +109,7 @@ const Rules: FC = () => {
             Далее
           </button>
         </div>
-        <Footer styles={{ marginTop: "auto" }} />
+        <Footer styles={{marginTop: "auto"}}/>
       </div>
     </DesignCircles>
   );

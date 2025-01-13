@@ -1,8 +1,8 @@
 import { Swords } from "lucide-react";
-import type { FC } from "react";
+import type { FC, CSSProperties } from "react";
 
 interface FooterProps {
-  styles?: React.CSSProperties;
+  styles?: CSSProperties;
 }
 
 const Footer: FC<FooterProps> = ({ styles }) => {

@@ -1,10 +1,10 @@
 // src/components/Home/SeatModal/SeatModal.tsx
 
 import type { FC } from "react";
-import Modal from "../../../components/Modal/Modal";
-import InlineSkeletonLoader from "../../../components/SkeletonLoader/InlineSkeletonLoader";
-import type { SeatType } from "../../../types/seat.types";
-import type { userType } from "../../../types/user.types";
+import Modal from "@/components/Modal/Modal.tsx"
+import InlineSkeletonLoader from "@/components/SkeletonLoader/InlineSkeletonLoader.tsx";
+import type { SeatType } from "@/types/seat.types.ts";
+import type { userType } from "@/types/user.types.ts";
 import styles from "./SeatModal.module.css";
 
 interface SeatModalProps {

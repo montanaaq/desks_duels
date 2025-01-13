@@ -1,8 +1,8 @@
-import type { FC } from "react";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-import type { DuelRequest } from "../../pages/Home/Home";
-import { socket } from "../../services/socketService";
+import type {FC} from "react";
+import {useEffect, useRef, useState} from "react";
+import {toast} from "sonner";
+import type {DuelRequest} from "../../pages/Home/Home";
+import {socket} from "@/services/socketService.ts";
 import styles from "./DuelRequestPopup.module.css";
 
 const DUEL_TIMEOUT_SECONDS = 60;
@@ -15,13 +15,13 @@ const DuelRequestPopup: FC<{
   handleAcceptDuel: (request: DuelRequest) => void;
   isDeclined: boolean;
 }> = ({
-  request,
-  onClose,
-  isInitiator,
-  handleDeclineDuel,
-  handleAcceptDuel,
-  isDeclined,
-}) => {
+        request,
+        onClose,
+        isInitiator,
+        handleDeclineDuel,
+        handleAcceptDuel,
+        isDeclined,
+      }) => {
   const [remainingTime, setRemainingTime] =
     useState<number>(DUEL_TIMEOUT_SECONDS);
   const intervalRef = useRef<NodeJS.Timeout | null | undefined>(null);
@@ -149,7 +149,7 @@ const DuelRequestPopup: FC<{
   const handleDecline = async () => {
     try {
       // Вызываем handleDeclineDuel из родительского компонента
-      await handleDeclineDuel(request, false);
+      handleDeclineDuel(request, false);
       console.log(
         "Duel decline step:",
         request.isConfirmed ? "confirmed" : "initial"
@@ -166,10 +166,10 @@ const DuelRequestPopup: FC<{
       // просто закрываем текущий попап
       // И показываем исходный попап дуэли
       toast.custom(
-        (t: any) => (
+        (id: string | number) => (
           <DuelRequestPopup
             request={request}
-            onClose={() => toast.dismiss(t.id)}
+            onClose={() => toast.dismiss(id)}
             isInitiator={false}
             handleDeclineDuel={handleDeclineDuel}
             handleAcceptDuel={handleAcceptDuel}

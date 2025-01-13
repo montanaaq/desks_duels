@@ -1,21 +1,21 @@
 // src/components/Home/Home.tsx
 
-import { Info } from "lucide-react";
-import type { FC,} from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { toast, Toaster } from "sonner";
+import {Info} from "lucide-react";
+import type {FC} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
+import {Link} from "react-router-dom";
+import {toast, Toaster} from "sonner";
 import DesignCircles from "../../components/DesignCircles/DesignCircles";
 import DuelRequestPopup from "../../components/DuelRequestPopup/DuelRequestPopup";
 import Footer from "../../components/Footer";
 import SkeletonLoader from "../../components/SkeletonLoader/SkeletonLoader";
 import useSchoolTimer from "../../hooks/useSchoolTimer";
-import { getActiveDuel, requestDuel } from "../../services/duelService";
-import { getDesks, getSeatById, takeSeat } from "../../services/seatService";
-import { initializeSocket, socket } from "../../services/socketService";
-import { findUserById } from "../../services/userService";
-import type { SeatType } from "../../types/seat.types";
-import type { userType } from "../../types/user.types";
+import {getActiveDuel, requestDuel} from "@/services/duelService.ts";
+import {getDesks, getSeatById, takeSeat} from "@/services/seatService.ts";
+import {initializeSocket, socket} from "@/services/socketService.ts";
+import {findUserById} from "@/services/userService.ts";
+import type {SeatType} from "@/types/seat.types.ts";
+import type {userType} from "@/types/user.types.ts";
 import DeskContainer from "./DeskContainer/DeskContainer";
 import styles from "./Home.module.css";
 import SeatModal from "./SeatModal/SeatModal";
@@ -44,8 +44,8 @@ interface DuelTimeoutEventDetail {
 	};
 }
 
-const Home: FC<HomeProps> = ({ user }) => {
-	const { time, isGameActive } = useSchoolTimer();
+const Home: FC<HomeProps> = ({user}) => {
+	const {time, isGameActive} = useSchoolTimer();
 	const [desks, setDesks] = useState<SeatType[]>([]);
 	const [selectedSeat, setSelectedSeat] = useState<SeatType | null>(null);
 	const [occupiedByUser, setOccupiedByUser] = useState<userType | null>(null);
@@ -92,7 +92,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 			try {
 				const activeDuel = await getActiveDuel(user.telegramId);
 				if (activeDuel && activeDuel.duel) {
-					const { duel } = activeDuel;
+					const {duel} = activeDuel;
 
 					// Определяем роль пользователя в дуэли
 					const isInitiator = duel.player1 === user.telegramId;
@@ -304,7 +304,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 	useEffect(() => {
 		const handleDuelTimeout = async (event: Event) => {
 			const customEvent = event as CustomEvent<DuelTimeoutEventDetail>;
-			const { duel } = customEvent.detail;
+			const {duel} = customEvent.detail;
 
 			try {
 				// Проверяем, что текущий пользователь участвует в этой дуэли
@@ -323,14 +323,14 @@ const Home: FC<HomeProps> = ({ user }) => {
 				if (user.telegramId === duel.player1) {
 					toast.success(
 						`Вы заняли место №${seat.id}, так как оппонент не ответил на вызов.`,
-						{ duration: 5000 }
+						{duration: 5000}
 					);
 				}
 				// Логика для оппонента
 				else {
 					toast.info(
 						`Место #${seat.id} занято ${player1Name.user?.name}, так как вы не ответили на вызов.`,
-						{ duration: 5000 }
+						{duration: 5000}
 					);
 				}
 
@@ -418,7 +418,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 				console.log("Duel request response:", data);
 
 				if (data && data.duel) {
-					const { duel } = data;
+					const {duel} = data;
 
 					const duelRequest: DuelRequest = {
 						duelId: duel.id,
@@ -559,7 +559,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 			toast.custom(
 				(id: string | number) => (
 					<DuelRequestPopup
-						request={{ ...request, isConfirmed: true }}
+						request={{...request, isConfirmed: true}}
 						onClose={() => toast.dismiss(id)}
 						isInitiator={false}
 						handleDeclineDuel={handleDeclineDuel}
@@ -608,7 +608,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 		if (!storedData) return null;
 
 		try {
-			const { user, timestamp } = JSON.parse(storedData);
+			const {user, timestamp} = JSON.parse(storedData);
 			const isDataFresh = Date.now() - timestamp < 3600000; // 1 hour
 
 			if (!isDataFresh) {
@@ -652,10 +652,10 @@ const Home: FC<HomeProps> = ({ user }) => {
 				prevDesks.map((desk) => {
 					if (desk.id === selectedSeat.id) {
 						// Set new seat
-						return { ...desk, occupiedBy: user.telegramId };
+						return {...desk, occupiedBy: user.telegramId};
 					} else if (desk.occupiedBy === user.telegramId) {
 						// Clear previous seat
-						return { ...desk, occupiedBy: null };
+						return {...desk, occupiedBy: null};
 					}
 					return desk;
 				})
@@ -695,7 +695,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 					prevDesks.map((desk) => {
 						if (desk.id === selectedSeat.id) {
 							// Revert new seat
-							return { ...desk, occupiedBy: null };
+							return {...desk, occupiedBy: null};
 						} else {
 							// Check if this was the user's previous seat
 							const wasUsersPreviousSeat = prevDesks.find(
@@ -703,7 +703,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 							);
 							if (wasUsersPreviousSeat) {
 								// Restore previous seat
-								return { ...desk, occupiedBy: user.telegramId };
+								return {...desk, occupiedBy: user.telegramId};
 							}
 						}
 						return desk;
@@ -784,10 +784,10 @@ const Home: FC<HomeProps> = ({ user }) => {
 			/>
 			<div className={styles.home_wrapper}>
 				<Link to={"/info"} className={styles.infoButton}>
-					<Info size={32} />
+					<Info size={32}/>
 				</Link>
 				{isLoading ? (
-					<SkeletonLoader />
+					<SkeletonLoader/>
 				) : (
 					<>
 						<div className={styles.container}>
@@ -795,11 +795,11 @@ const Home: FC<HomeProps> = ({ user }) => {
 								Привет, <b>{user.name}</b>!
 							</p>
 							<p className={styles.subtitle}>До начала</p>
-							<Timer time={time} isActive={isGameActive} />
+							<Timer time={time} isActive={isGameActive}/>
 							{isGameActive && (
 								<p className={styles.gameStatus}>
 									Игра активна!
-									<br />
+									<br/>
 									Быстрее займи своё место!
 								</p>
 							)}
@@ -812,7 +812,7 @@ const Home: FC<HomeProps> = ({ user }) => {
 						/>
 					</>
 				)}
-				<Footer styles={{ marginTop: "10px" }} />
+				<Footer styles={{marginTop: "10px"}}/>
 			</div>
 
 			<SeatModal

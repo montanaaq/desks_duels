@@ -1,20 +1,20 @@
 import Home from "@/pages/Home/Home.tsx";
-import type { FC } from "react";
-import { useEffect, useState } from "react";
+import type {FC} from "react";
+import {useEffect, useState} from "react";
 import DesignCircles from "./components/DesignCircles/DesignCircles.tsx";
 import Footer from "./components/Footer.tsx";
 import Logo from "./components/Logo.tsx";
 import SkeletonLoader from "./components/SkeletonLoader/SkeletonLoader";
-import { isLocal } from "./config";
-import { useTelegram } from "./hooks/useTelegram.ts";
+import {isLocal} from "./config";
+import {useTelegram} from "./hooks/useTelegram.ts";
 import Rules from "./pages/Rules/Rules.tsx";
-import { findUserById } from "./services/userService.ts";
-import type { userType } from "./types/user.types.ts";
+import {findUserById} from "./services/userService.ts";
+import type {userType} from "./types/user.types.ts";
 
 const App: FC = () => {
   const [user, setUser] = useState<userType | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const { tg } = useTelegram();
+  const {tg} = useTelegram();
   const webAppId = tg?.initDataUnsafe?.user?.id;
 
   // Инициализируем telegramId в зависимости от режима
@@ -79,15 +79,15 @@ const App: FC = () => {
     checkUser();
   }, [telegramId]);
 
-  if (loading) return <SkeletonLoader />;
+  if (loading) return <SkeletonLoader/>;
 
   if (!telegramId || !user) {
     return (
       <DesignCircles>
         <div className="App_if_user_not_found">
           <Logo
-            style={{ marginTop: "10px", width: "160px", height: "115px" }}
-            textStyles={{ fontSize: "23px", marginTop: "10px" }}
+            style={{marginTop: "10px", width: "160px", height: "115px"}}
+            textStyles={{fontSize: "23px", marginTop: "10px"}}
           />
           <p>
             <span>
@@ -107,11 +107,11 @@ const App: FC = () => {
               </a>
             </span>
           </p>
-          <Footer styles={{ marginTop: "auto" }} />
+          <Footer styles={{marginTop: "auto"}}/>
 
           {/* Input for testing with different Telegram IDs - only shown in local mode */}
           {isLocal && (
-            <div style={{ marginTop: "20px" }}>
+            <div style={{marginTop: "20px"}}>
               <input
                 type="number"
                 value={telegramId ?? ""}
@@ -132,7 +132,7 @@ const App: FC = () => {
     );
   }
 
-  return user && user.rules_seen ? <Home user={user} /> : <Rules />;
+  return user && user.rules_seen ? <Home user={user}/> : <Rules/>;
 };
 
 export default App;

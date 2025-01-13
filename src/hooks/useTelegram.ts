@@ -1,8 +1,8 @@
 declare global {
     interface Window {
-      Telegram?: any;
+        Telegram?: any;
     }
-  }
+}
 
 const tg = typeof window !== 'undefined' && window.Telegram?.WebApp ? window.Telegram.WebApp : null;
 
@@ -12,7 +12,7 @@ export function useTelegram() {
     }
 
     const onToggleButton = () => {
-        if(tg?.MainButton?.isVisible) {
+        if (tg?.MainButton?.isVisible) {
             tg.MainButton.hide();
         } else {
             tg?.MainButton?.show();

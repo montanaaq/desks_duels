@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 
 interface TimerState {
   time: string
@@ -6,19 +6,19 @@ interface TimerState {
 }
 
 const schedule = [
-  { start: '08:00', end: '08:40', isBreak: false },
-  { start: '08:40', end: '08:50', isBreak: true },
-  { start: '08:50', end: '09:30', isBreak: false },
-  { start: '09:30', end: '09:40', isBreak: true },
-  { start: '09:40', end: '10:20', isBreak: false },
-  { start: '10:20', end: '10:40', isBreak: true },
-  { start: '10:40', end: '11:20', isBreak: false },
-  { start: '11:20', end: '11:40', isBreak: true },
-  { start: '11:40', end: '12:20', isBreak: false },
-  { start: '12:20', end: '12:30', isBreak: true },
-  { start: '12:30', end: '13:10', isBreak: false },
-  { start: '23:18', end: '23:23', isBreak: true },
-  { start: '13:20', end: '14:00', isBreak: false }
+  {start: '08:00', end: '08:40', isBreak: false},
+  {start: '08:40', end: '08:50', isBreak: true},
+  {start: '08:50', end: '09:30', isBreak: false},
+  {start: '09:30', end: '09:40', isBreak: true},
+  {start: '09:40', end: '10:20', isBreak: false},
+  {start: '10:20', end: '10:40', isBreak: true},
+  {start: '10:40', end: '11:20', isBreak: false},
+  {start: '11:20', end: '11:40', isBreak: true},
+  {start: '11:40', end: '12:20', isBreak: false},
+  {start: '12:20', end: '12:30', isBreak: true},
+  {start: '12:30', end: '13:10', isBreak: false},
+  {start: '23:18', end: '23:23', isBreak: true},
+  {start: '13:20', end: '14:00', isBreak: false}
 ];
 
 const getNextPeriod = () => {
@@ -33,10 +33,10 @@ const getNextPeriod = () => {
     end.setHours(endHour, endMinute, 0, 0);
 
     if (now >= start && now < end) {
-      return { isBreak: period.isBreak, timeLeft: end.getTime() - now.getTime() };
+      return {isBreak: period.isBreak, timeLeft: end.getTime() - now.getTime()};
     }
   }
-  return { isBreak: false, timeLeft: 0 };
+  return {isBreak: false, timeLeft: 0};
 };
 const useSchoolTimer = (): TimerState => {
   const [time, setTime] = useState<string>('00:00');
@@ -44,7 +44,7 @@ const useSchoolTimer = (): TimerState => {
 
   useEffect(() => {
     const updateTimer = () => {
-      const { isBreak, timeLeft } = getNextPeriod();
+      const {isBreak, timeLeft} = getNextPeriod();
 
       setIsGameActive(isBreak);
 
@@ -60,7 +60,7 @@ const useSchoolTimer = (): TimerState => {
     return () => clearInterval(interval);
   }, []);
 
-  return { time, isGameActive };
+  return {time, isGameActive};
 };
 
 export default useSchoolTimer;
