@@ -1,8 +1,8 @@
 // src/pages/Home/DeskContainer/DeskContainer.tsx
-import { useState, type FC } from "react";
 import Seat from "@/components/Seat/Seat.tsx";
 import SkeletonLoader from "@/components/SkeletonLoader/SkeletonLoader.tsx";
 import type { SeatType } from "@/types/seat.types.ts";
+import { useState, type FC } from "react";
 import styles from "./DeskContainer.module.css";
 
 interface DeskContainerProps {

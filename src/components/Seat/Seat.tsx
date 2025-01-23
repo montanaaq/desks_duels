@@ -1,9 +1,9 @@
 // src/components/Seat/Seat.tsx
 // import { isLocal } from "@/config";
-import type {FC} from "react";
-import {toast} from "sonner";
+import type { FC } from "react";
+import { toast } from "sonner";
 // import useSchoolTimer from "../../hooks/useSchoolTimer";
-import type {SeatType} from "@/types/seat.types.ts";
+import type { SeatType } from "@/types/seat.types.ts";
 import styles from "./Seat.module.css";
 
 interface SeatProps {
@@ -13,12 +13,11 @@ interface SeatProps {
   isModalOpen: boolean;
 }
 
-const Seat: FC<SeatProps> = ({seat, isSelected, onSelect, isModalOpen}) => {
+const Seat: FC<SeatProps> = ({ seat, isSelected, onSelect, isModalOpen }) => {
   // В локальном режиме игра всегда активна, иначе используем таймер
   // const { isGameActive: isGameActiveFromTimer } = useSchoolTimer();
   // const isGameActive = isLocal ? true : isGameActiveFromTimer;
   const isGameActive = true;
-
 
   let circleClass;
   if (

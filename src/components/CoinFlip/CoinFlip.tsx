@@ -1,24 +1,24 @@
 // pages/CoinFlip/CoinFlip.tsx
 
-import type {FC} from "react";
-import {useEffect, useState} from "react";
-import {useNavigate, useParams} from "react-router-dom";
+import Footer from "@/components/Footer";
+import Logo from "@/components/Logo";
+import { url } from "@/config.ts";
+import { completeDuel } from "@/services/duelService.ts";
+import { findUserById, setDuelingFlag } from "@/services/userService.ts";
+import type { FC } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import io from "socket.io-client";
-import {toast, Toaster} from "sonner";
-import DesignCircles from "../../components/DesignCircles/DesignCircles";
-import Footer from "../../components/Footer";
-import Logo from "../../components/Logo";
-import CoinFlipSkeletonLoader from "../../components/SkeletonLoader/CoinFlipSkeletonLoader";
-import InlineSkeletonLoader from "../../components/SkeletonLoader/InlineSkeletonLoader";
-import {url} from "@/config.ts";
-import {completeDuel} from "@/services/duelService.ts";
-import {findUserById, setDuelingFlag} from "@/services/userService.ts";
+import { toast, Toaster } from "sonner";
+import DesignCircles from "@/components/DesignCircles/DesignCircles";
+import CoinFlipSkeletonLoader from "@/components/SkeletonLoader/CoinFlipSkeletonLoader";
+import InlineSkeletonLoader from "@/components/SkeletonLoader/InlineSkeletonLoader";
 import styles from "./CoinFlip.module.css";
 
 const socket = io(url);
 
 const CoinFlip: FC = () => {
-  const {duelId, challengerId, challengedId} = useParams<{
+  const { duelId, challengerId, challengedId } = useParams<{
     duelId: string;
     challengerId: string;
     challengedId: string;
@@ -63,9 +63,9 @@ const CoinFlip: FC = () => {
     setDuelingFlagOnStart();
 
     interface duelResult {
-      duelId: string,
-      winner: string,
-      loser: string
+      duelId: string;
+      winner: string;
+      loser: string;
     }
     // Обработчик события duelResult
     const handleDuelResult = async (data: duelResult) => {
@@ -210,16 +210,16 @@ const CoinFlip: FC = () => {
   }, []);
 
   if (isLoading || !challengerName || !challengedName) {
-    return <CoinFlipSkeletonLoader/>;
+    return <CoinFlipSkeletonLoader />;
   }
 
   return (
     <DesignCircles>
-      <Toaster position="top-center" expand={true} richColors/>
+      <Toaster position="top-center" expand={true} richColors />
       <div className={styles.coinFlip_wrapper}>
         <Logo
-          style={{marginTop: "10px", width: "135px", height: "90px"}}
-          textStyles={{fontSize: "20px", marginTop: "10px"}}
+          style={{ marginTop: "10px", width: "135px", height: "90px" }}
+          textStyles={{ fontSize: "20px", marginTop: "10px" }}
         />
         <div className={styles.coinFlip_container}>
           <div className={styles.playerNames}>
@@ -232,18 +232,18 @@ const CoinFlip: FC = () => {
             {result && !flipping ? <span>{result}</span> : <span>...</span>}
           </div>
           {flipping ? (
-            <h2 style={{fontSize: "24px"}}>
-              Победитель: <InlineSkeletonLoader/>
+            <h2 style={{ fontSize: "24px" }}>
+              Победитель: <InlineSkeletonLoader />
             </h2>
           ) : (
             winnerName && (
-              <h2 style={{fontSize: "24px"}}>
+              <h2 style={{ fontSize: "24px" }}>
                 Победитель: <b>{winnerName}</b>
               </h2>
             )
           )}
         </div>
-        <Footer styles={{marginTop: "auto"}}/>
+        <Footer styles={{ marginTop: "auto" }} />
       </div>
     </DesignCircles>
   );

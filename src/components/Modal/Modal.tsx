@@ -1,6 +1,6 @@
 // src/components/Modal/Modal.tsx
 
-import type {FC, ReactNode} from "react";
+import type { FC, ReactNode } from "react";
 import styles from "./Modal.module.css";
 
 interface ModalProps {
@@ -9,7 +9,7 @@ interface ModalProps {
   children: ReactNode;
 }
 
-const Modal: FC<ModalProps> = ({isOpen, onClose, children}) => {
+const Modal: FC<ModalProps> = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null;
   return (
     <div className={styles.modal} onClick={onClose}>

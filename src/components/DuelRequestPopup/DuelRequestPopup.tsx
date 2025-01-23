@@ -1,8 +1,8 @@
-import type {FC} from "react";
-import {useEffect, useRef, useState} from "react";
-import {toast} from "sonner";
-import type {DuelRequest} from "../../pages/Home/Home";
-import {socket} from "@/services/socketService.ts";
+import { socket } from "@/services/socketService.ts";
+import type { FC } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import type { DuelRequest } from "../../pages/Home/Home";
 import styles from "./DuelRequestPopup.module.css";
 
 const DUEL_TIMEOUT_SECONDS = 60;
@@ -15,13 +15,13 @@ const DuelRequestPopup: FC<{
   handleAcceptDuel: (request: DuelRequest) => void;
   isDeclined: boolean;
 }> = ({
-        request,
-        onClose,
-        isInitiator,
-        handleDeclineDuel,
-        handleAcceptDuel,
-        isDeclined,
-      }) => {
+  request,
+  onClose,
+  isInitiator,
+  handleDeclineDuel,
+  handleAcceptDuel,
+  isDeclined,
+}) => {
   const [remainingTime, setRemainingTime] =
     useState<number>(DUEL_TIMEOUT_SECONDS);
   const intervalRef = useRef<NodeJS.Timeout | null | undefined>(null);

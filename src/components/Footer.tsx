@@ -1,5 +1,5 @@
 import { Swords } from "lucide-react";
-import type { FC, CSSProperties } from "react";
+import type { CSSProperties, FC } from "react";
 
 interface FooterProps {
   styles?: CSSProperties;

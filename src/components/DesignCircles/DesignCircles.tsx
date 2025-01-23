@@ -1,28 +1,28 @@
-import type { ReactNode, FC } from 'react'
-import styles from './DesignCircles.module.css'
+import type { FC, ReactNode } from "react";
+import styles from "./DesignCircles.module.css";
 
 interface DesignCirclesProps {
-	children: ReactNode
+  children: ReactNode;
 }
 
 const DesignCircles: FC<DesignCirclesProps> = ({ children }) => {
-	return (
-		<div className={styles.container}>
-			<ul className={styles.circles}>
-				<li></li>
-				<li></li>
-				<li></li>
-				<li></li>
-				<li></li>
-				<li></li>
-				<li></li>
-				<li></li>
-				<li></li>
-				<li></li>
-			</ul>
-			<div className={styles.content}>{children}</div>
-		</div>
-	)
-}
+  return (
+    <div className={styles.container}>
+      <ul className={styles.circles}>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+      </ul>
+      <div className={styles.content}>{children}</div>
+    </div>
+  );
+};
 
-export default DesignCircles
+export default DesignCircles;

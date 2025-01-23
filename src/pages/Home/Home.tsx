@@ -1,21 +1,20 @@
 // src/components/Home/Home.tsx
 
-import {Info} from "lucide-react";
-import type {FC} from "react";
-import {useCallback, useEffect, useRef, useState} from "react";
-import {Link} from "react-router-dom";
-import {toast, Toaster} from "sonner";
-import DesignCircles from "../../components/DesignCircles/DesignCircles";
-import DuelRequestPopup from "../../components/DuelRequestPopup/DuelRequestPopup";
-import Footer from "../../components/Footer";
-import SkeletonLoader from "../../components/SkeletonLoader/SkeletonLoader";
-import useSchoolTimer from "../../hooks/useSchoolTimer";
-import {getActiveDuel, requestDuel} from "@/services/duelService.ts";
-import {getDesks, getSeatById, takeSeat} from "@/services/seatService.ts";
-import {initializeSocket, socket} from "@/services/socketService.ts";
-import {findUserById} from "@/services/userService.ts";
-import type {SeatType} from "@/types/seat.types.ts";
-import type {userType} from "@/types/user.types.ts";
+import DesignCircles from "@/components/DesignCircles/DesignCircles";
+import DuelRequestPopup from "@/components/DuelRequestPopup/DuelRequestPopup";
+import Footer from "@/components/Footer";
+import SkeletonLoader from "@/components/SkeletonLoader/SkeletonLoader";
+import useSchoolTimer from "@/hooks/useSchoolTimer";
+import { getActiveDuel, requestDuel } from "@/services/duelService.ts";
+import { getDesks, getSeatById, takeSeat } from "@/services/seatService.ts";
+import { initializeSocket, socket } from "@/services/socketService.ts";
+import { findUserById } from "@/services/userService.ts";
+import type { SeatType } from "@/types/seat.types.ts";
+import type { userType } from "@/types/user.types.ts";
+import { Info } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type FC } from "react";
+import { Link } from "react-router-dom";
+import { toast, Toaster } from "sonner";
 import DeskContainer from "./DeskContainer/DeskContainer";
 import styles from "./Home.module.css";
 import SeatModal from "./SeatModal/SeatModal";

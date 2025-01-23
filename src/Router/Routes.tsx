@@ -1,15 +1,18 @@
-import App from '../App'
-import type { ReactElement } from 'react'
-import CoinFlip from '../components/CoinFlip/CoinFlip'
-import Info from '@/pages/Info/Info'
+import Info from "@/pages/Info/Info";
+import type { ReactElement } from "react";
+import App from "../App";
+import CoinFlip from "../components/CoinFlip/CoinFlip";
 
 interface IRoute {
-  path: string
-  element: ReactElement
+  path: string;
+  element: ReactElement;
 }
 
 export const routes: IRoute[] = [
-    {path: '/', element: <App />},
-    {path: '/coinflip/:duelId/:challengerId/:challengedId', element: <CoinFlip />},
-    {path: '/info', element: <Info />}
-]
+  { path: "/", element: <App /> },
+  {
+    path: "/coinflip/:duelId/:challengerId/:challengedId",
+    element: <CoinFlip />,
+  },
+  { path: "/info", element: <Info /> },
+];
